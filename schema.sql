@@ -5,7 +5,7 @@ CREATE TABLE products (
 		product_name varchar(40) NOT NULL,
 		sku varchar(20) UNIQUE NOT NULL,
 		description text,
-		unit_price real NOT NULL,
+		unit_price numeric(15, 6) NOT NULL,
 		discount real DEFAULT 0,
 		units_in_stock int DEFAULT 0,
 		rating real DEFAULT 0,
@@ -35,12 +35,12 @@ CREATE TABLE product_properties (
 
 CREATE TABLE suppliers (
 		supplier_id serial PRIMARY KEY,
-		company_name varchar(40),
-		contact_name varchar(30),
-		phone varchar(24),
-		email varchar(255),
-		address varchar(60),
-		website_url varchar(100) 
+		company_name varchar(60) NOT NULL,
+		contact_name varchar(30) NOT NULL,
+		phone varchar(24) NOT NULL,
+		email varchar(255) NOT NULL,
+		address varchar(60) NOT NULL,
+		website_url varchar(100)
 );
 
 CREATE TABLE customers (
@@ -80,3 +80,5 @@ CREATE TABLE order_details (
 		product_id int REFERENCES products (product_id),
 		quantity int NOT NULL,
 		discount real DEFAULT 0
+);
+

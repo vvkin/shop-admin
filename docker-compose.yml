@@ -1,0 +1,28 @@
+# Development only docker-compose file
+# Production version will be placed in docker-compose-prod.yml
+
+version: '3.7'
+
+services:
+    web:
+        build: .
+        command: flask run -h 0.0.0.0
+        ports:
+          - 5000:5000
+        env_file:
+          - .env
+        volumes:
+          - .:/code/
+        depends_on:
+          - db
+    # Postgres configuration
+    db:
+        image: postgres:12
+        # PostgreSQL settings
+        env_file:
+            - .env-postgres
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+
+volumes:
+    postgres_data:

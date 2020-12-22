@@ -3,6 +3,12 @@
 
 version: '3.7'
 
+networks:
+  app:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
 services:
     web:
         build: .
@@ -11,6 +17,10 @@ services:
           - 5000:5000
         env_file:
           - .env
+        networks:
+          app:
+              ipv4_address: 172.20.0.6
+        restart: always
         volumes:
           - .:/code/
         depends_on:
@@ -19,6 +29,10 @@ services:
         image: postgres:12
         env_file:
           - .env-postgres
+        networks:
+          app:
+              ipv4_address: 172.20.0.5
+        restart: always
         volumes:
             - postgres_data:/var/lib/postgresql/data
 

@@ -1,3 +1,19 @@
+CREATE TABLE categories (
+		category_id serial PRIMARY KEY,
+		category_name varchar(40) NOT NULL
+);
+
+CREATE TABLE suppliers (
+		supplier_id serial PRIMARY KEY,
+		company_name varchar(60) NOT NULL,
+		contact_name varchar(30) NOT NULL,
+		phone varchar(24) NOT NULL,
+		email varchar(255) NOT NULL,
+		address varchar(60) NOT NULL,
+		website_url varchar(100),
+		is_building_contractor boolean DEFAULT FALSE
+);
+
 CREATE TABLE products (
 		product_id serial PRIMARY KEY,
 		category_id int REFERENCES categories (category_id),
@@ -9,17 +25,7 @@ CREATE TABLE products (
 		discount real DEFAULT 0,
 		units_in_stock int DEFAULT 0,
 		rating real DEFAULT 0,
-		pictures_directory varchar(255),
-);
-
-CREATE TABLE categories (
-		category_id serial PRIMARY KEY,
-		category_name varchar(40) NOT NULL
-);
-
-CREATE TABLE category_properties (
-		category_id int REFERENCES categories (category_id),
-		property_id int REFERENCES properties (propety_id)
+		pictures_directory varchar(255)
 );
 
 CREATE TABLE properties (
@@ -27,20 +33,15 @@ CREATE TABLE properties (
 		property_name varchar(40) NOT NULL
 );
 
+CREATE TABLE category_properties (
+		category_id int REFERENCES categories (category_id),
+		property_id int REFERENCES properties (property_id)
+);
+
 CREATE TABLE product_properties (
 		product_id int REFERENCES products (product_id),
 		property_id int REFERENCES properties (property_id),
-		property_value varchar(40) NOT NULL
-);
-
-CREATE TABLE suppliers (
-		supplier_id serial PRIMARY KEY,
-		company_name varchar(60) NOT NULL,
-		contact_name varchar(30) NOT NULL,
-		phone varchar(24) NOT NULL,
-		email varchar(255) NOT NULL,
-		address varchar(60) NOT NULL,
-		website_url varchar(100)
+		property_value varchar(40) 
 );
 
 CREATE TABLE customers (
@@ -54,7 +55,7 @@ CREATE TABLE customers (
 CREATE TABLE users (
 		user_id serial PRIMARY KEY,
 		customer_id int REFERENCES customers (customer_id),
-		password varchar(30) NOT NULL,
+		password varchar(128) NOT NULL,
 		birth_date date,
 		entered_date date, -- TO DO: add trigger for default now()
 		is_admin boolean DEFAULT FALSE
@@ -65,14 +66,14 @@ CREATE TABLE payments (
 		by_cash boolean DEFAULT FALSE,
 		credit_card varchar(20),
 		is_paid boolean DEFAULT FALSE,
-		paid_at timestamp NOT NULL
+		paid_at timestamp
 );
 
 CREATE TABLE orders (
 		order_id serial PRIMARY KEY,
 		customer_id int REFERENCES customers (customer_id),
 		payment_id int REFERENCES payments (payment_id),
-		created_at timestamp NOT NULL,
+		created_at timestamp
 );
 
 CREATE TABLE order_details (

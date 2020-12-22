@@ -83,3 +83,30 @@ CREATE TABLE order_details (
 		discount real DEFAULT 0
 );
 
+-- Fill tables
+
+INSERT INTO categories (category_name)
+	VALUES ('A'), ('B'), ('C')
+;
+
+INSERT INTO suppliers (
+	company_name, contact_name, phone,
+	email, address, website_url, is_building_contractor
+)
+VALUES ('A', 'A', 'A', 'A', 'A', 'A', FALSE),
+	   ('A', 'A', 'A', 'A', 'A', 'A', FALSE),
+	   ('A', 'A', 'A', 'A', 'A', 'A', FALSE)
+;
+
+INSERT INTO products (
+	category_id, supplier_id, product_name, sku,
+	description, unit_price, discount,
+	units_in_stock, rating, pictures_directory
+)
+VALUES (1, 1, 'A', 'A', '...', 100, 0, 0, 1, 'a'),
+	   (1, 1, 'A', 'B', '...', 100, 0, 0, 1, 'a'),
+	   (1, 1, 'A', 'C', '...', 100, 0, 0, 1, 'a')
+;
+
+
+

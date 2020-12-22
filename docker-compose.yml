@@ -15,12 +15,10 @@ services:
           - .:/code/
         depends_on:
           - db
-    # Postgres configuration
     db:
         image: postgres:12
-        # PostgreSQL settings
         env_file:
-            - .env-postgres
+          - .env-postgres
         volumes:
             - postgres_data:/var/lib/postgresql/data
 

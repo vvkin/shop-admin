@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 flask = "*"
 python-dotenv = "*"
+psycopg2-binary = "*"
+click = "*"
 
 [requires]
 python_version = "3.8"

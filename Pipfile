@@ -10,6 +10,9 @@ flask = "*"
 python-dotenv = "*"
 psycopg2-binary = "*"
 click = "*"
+flask-wtf = "*"
+flask-bootstrap = "*"
+email-validator = "*"
 
 [requires]
 python_version = "3.8"

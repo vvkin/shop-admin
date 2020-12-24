@@ -1,4 +1,5 @@
-from flask import session, g, request, redirect, render_template
+from flask import session, g, request, redirect, render_template, url_for, flash
+from werkzeug.security import generate_password_hash
 from app.auth import auth
 from app.decorators import login_required
 from app.models import User
@@ -10,15 +11,20 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         User.save_user(
-            email=form.email.data.lower(),
-            username=form.username.data,
-            password=form.password.data
+            form.email.data, form.phone.data,
+            form.first_name.data, 
+            form.second_name.data,
+            generate_password_hash(form.password.data)
         )
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    if g.current_user: 
+        flash('You have already logged in!')
+        return redirect(url_for('main.index'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         email = form.email.data.lower()

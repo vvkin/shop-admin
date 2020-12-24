@@ -13,6 +13,7 @@ click = "*"
 flask-wtf = "*"
 flask-bootstrap = "*"
 email-validator = "*"
+phonenumbers = "*"
 
 [requires]
 python_version = "3.8"

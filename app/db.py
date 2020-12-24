@@ -1,5 +1,6 @@
 import psycopg2
 import click
+import os
 from flask import current_app, g
 from flask.cli import with_appcontext
 
@@ -12,14 +13,16 @@ def get_db():
 
 def close_db(e=None):
     db = g.pop('db', None)
-
     if db is not None:
         db.close()
 
 def init_db():
-    db = get_db()
-    with current_app.open_resource('schema.sql') as f:
-        g.db.cursor().execute(f.read())
+    cursor = get_db().cursor()
+    sql_dir = os.path.join(current_app.root_path, 'sql')
+    for file_name in os.listdir(sql_dir):
+        fhand = open(os.path.join(sql_dir, file_name),'r')
+        cursor.execute(fhand.read())
+        fhand.close()
 
 def init_app(app):
     app.teardown_appcontext(close_db)

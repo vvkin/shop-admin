@@ -16,5 +16,7 @@ def create_app(config_name: str) -> Flask:
     app.register_blueprint(main)
     from .auth import auth
     app.register_blueprint(auth, url_prefix='/auth')
+    from .admin import admin
+    app.register_blueprint(admin, url_prefix='/admin')
 
     return app

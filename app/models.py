@@ -1,4 +1,5 @@
 from flask import current_app
+from typing import List
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import get_db
@@ -73,30 +74,25 @@ class Product:
 
         cursor.execute(query, **data)
 
-
 class User:
     @staticmethod
-    def get_by_username(username: str) -> bool:
+    def get_by_email(email: str) -> RealDictCursor:
         cursor = get_db().cursor(cursor_factory=RealDictCursor)
-        query = 'SELECT * FROM user WHERE username = %s'
-        cursor.execute(query, (username, ))
-        return cursor.fetchone()
-    
-    @staticmethod
-    def get_by_email(email: str):
-        cursor = get_db().cursor(cursor_factory=RealDictCursor)
-        query = 'SELECT * FROM user WHERE email = %s'
+        query = 'SELECT * FROM users WHERE email = %s'
         cursor.execute(query, (email, ))
         return cursor.fetchone()
     
     @staticmethod
-    def is_valid_login(email: str, password: str):
+    def is_valid_login(email: str, password: str) -> bool:
         user = User.get_by_email(email)
-        return check_password_hash(user.password, password)
+        return check_password_hash(user['password'], password)
 
     @staticmethod
-    def save_user(email: str, useraname: str, password: str) -> None:
-        pass
+    def save_user(*user_data: List[str]) -> None:
+        cursor = get_db().cursor()
+        query = 'CALL save_user(%s, %s, %s, %s, %s)'
+        cursor.execute(query, user_data)
+
 
 
 

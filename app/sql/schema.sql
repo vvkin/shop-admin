@@ -48,13 +48,13 @@ CREATE TABLE customers (
 		customer_id serial PRIMARY KEY,
 		first_name varchar(60) NOT NULL,
 		last_name varchar(60) NOT NULL,
-		email varchar(255) NOT NULL,
-		phone varchar(24) NOT NULL
+		phone varchar(24)
 );
 
 CREATE TABLE users (
 		user_id serial PRIMARY KEY,
 		customer_id int REFERENCES customers (customer_id),
+		email varchar(255) NOT NULL,
 		password varchar(128) NOT NULL,
 		birth_date date,
 		entered_date date, -- TO DO: add trigger for default now()

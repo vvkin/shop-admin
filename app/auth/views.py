@@ -1,5 +1,4 @@
 from flask import session, g, request, redirect, render_template, url_for, flash
-from werkzeug.security import generate_password_hash
 from app.auth import auth
 from app.decorators import login_required
 from app.models import User
@@ -14,7 +13,7 @@ def register():
             form.email.data, form.phone.data,
             form.first_name.data, 
             form.second_name.data,
-            generate_password_hash(form.password.data)
+            form.password.data
         )
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)

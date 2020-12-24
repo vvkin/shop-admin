@@ -85,16 +85,20 @@ class User:
     @staticmethod
     def is_valid_login(email: str, password: str) -> bool:
         user = User.get_by_email(email)
-        return check_password_hash(user['password'], password)
+        return user and user['password'] == password 
 
     @staticmethod
     def save_user(*user_data: List[str]) -> None:
         cursor = get_db().cursor()
-        query = 'CALL save_user(%s, %s, %s, %s, %s)'
+        query = 'CALL create_user(%s, %s, %s, %s, %s)'
         cursor.execute(query, user_data)
-
-
-
+    
+    @staticmethod
+    def get_all_users() -> RealDictCursor:
+        cursor = get_db().cursor()
+        query = 'SELECT * FROM get_all_users()'
+        cursor.execute(query)
+        return cursor.fetchall()
 
 
         

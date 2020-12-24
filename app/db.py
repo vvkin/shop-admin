@@ -17,12 +17,8 @@ def close_db(e=None):
         db.close()
 
 def init_db():
-    cursor = get_db().cursor()
-    sql_dir = os.path.join(current_app.root_path, 'sql')
-    for file_name in os.listdir(sql_dir):
-        fhand = open(os.path.join(sql_dir, file_name),'r')
-        cursor.execute(fhand.read())
-        fhand.close()
+    with current_app.open_resource('schema.sql', 'r') as fhand:
+        get_db().cursor().execute(fhand.read())
 
 def init_app(app):
     app.teardown_appcontext(close_db)

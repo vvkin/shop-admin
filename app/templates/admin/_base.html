@@ -1,0 +1,29 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}PyShop{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('admin.panel') }}">PYSHOP ADMINISTRATION</a>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav navbar-right">
+           <li><a class="black">Welcome, <strong>{{ g.current_user.email }}</strong></a></li>
+           <li class="underlined"><a href="{{ url_for('main.index') }}">View site</a></li>
+           <li class="underlined"><a href="{{ url_for('auth.logout') }}">Sign out</a></li>
+        </ul>  
+      </div>
+    </div>
+</nav>
+{% endblock %}
+
+<div class="container">{% block content %}{% endblock %}</div>
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}

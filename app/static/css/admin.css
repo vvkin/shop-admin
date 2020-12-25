@@ -1,0 +1,28 @@
+.underlined {
+    text-decoration: underline;
+}
+
+.black {
+    color: rgb(39, 36, 36) !important;
+}
+
+caption {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background-color: #f5eded;
+}
+
+.model-row th {
+    width: 100%;
+}
+
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+
+.table-wrapper {
+    padding: 0px 30px;
+}

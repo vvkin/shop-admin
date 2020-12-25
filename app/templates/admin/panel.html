@@ -1,7 +1,42 @@
-{% extends '_base.html' %}
+{% extends 'admin/_base.html' %}
 
-{% block title %}Pyshop-Admin{% enblock %}
+{% block title %}Pyshop-Admin{% endblock %}
 
-{% block page_content %}
-    <p>some logic here</p>
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-around">
+            <div class="managing col-lg-7">
+                <h1>Site administration</h1>
+                <table class="table">
+                    <caption>Authentication System</caption>
+                    <tbody>
+                        <tr class="model-row">
+                            <th scope="row">Users</th>
+                            <td><a href="{{ url_for('admin.user_add') }}">Add</a></td>
+                            <td><a href="{{ url_for('admin.users') }}">List</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table"> 
+                    <caption>General</caption>
+                    <tbody>
+                        <tr class="model-row">
+                            <th scope="row">Products</th>
+                            <td><a href="{{ url_for('admin.product_add') }}">Add</a></td>
+                            <td><a href="{{ url_for('admin.products') }}">Change</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="actions col-lg-5">
+                <h2>Recent actions</h2>
+                <h3>My actions</h3>
+                {% for action in actions %}
+                    <p>{{ action }}</p>
+                {% else %}
+                    <p>None available</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock %}

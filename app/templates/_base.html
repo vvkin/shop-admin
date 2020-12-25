@@ -69,7 +69,6 @@
                 <ul class="dropdown-menu">
                     {% if g.current_user.is_admin %}
                     <li><a href="{{ url_for('admin.panel') }}">Administrate</a></li>
-                    <li><a href="{{ url_for('admin.users') }}">Users</a></li>
                     {% endif %}
                     <li><a href="#">Your profile</a></li>
                     <li><a href="#">Settings</a></li>

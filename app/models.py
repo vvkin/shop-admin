@@ -1,6 +1,6 @@
 from flask import current_app
 from typing import List
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, DictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import get_db
 
@@ -94,8 +94,8 @@ class User:
         cursor.execute(query, user_data)
     
     @staticmethod
-    def get_all_users() -> RealDictCursor:
-        cursor = get_db().cursor()
+    def get_all_users() -> DictCursor:
+        cursor = get_db().cursor(cursor_factory=DictCursor)
         query = 'SELECT * FROM get_all_users()'
         cursor.execute(query)
         return cursor.fetchall()

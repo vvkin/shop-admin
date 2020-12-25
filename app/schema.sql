@@ -124,7 +124,7 @@ RETURNS TABLE (
            entered_date,
            is_admin
     FROM users
-      JOIN customers USING (customer_id);
+      LEFT JOIN customers USING (customer_id);
 $$ LANGUAGE SQL;
 
 -- triggers

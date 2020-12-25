@@ -7,7 +7,7 @@
         <div class="row justify-content-around">
             <div class="managing col-lg-7">
                 <h1>Site administration</h1>
-                <table class="table">
+                <table class="table model-table">
                     <caption>Authentication System</caption>
                     <tbody>
                         <tr class="model-row">
@@ -17,7 +17,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <table class="table"> 
+                <table class="table model-table"> 
                     <caption>General</caption>
                     <tbody>
                         <tr class="model-row">
@@ -29,8 +29,8 @@
                 </table>
             </div>
             <div class="actions col-lg-5">
-                <h2>Recent actions</h2>
-                <h3>My actions</h3>
+                <h2>Recent actions</h2><hr>
+                <h3>My actions</h3><br>
                 {% for action in actions %}
                     <p>{{ action }}</p>
                 {% else %}

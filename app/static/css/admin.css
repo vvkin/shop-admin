@@ -6,11 +6,20 @@
     color: rgb(39, 36, 36) !important;
 }
 
-caption {
-    font-size: 12px;
+.model-table caption {
+    padding: 10px 15px;
+    font-size: 13px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    background-color: #f5eded;
+    background-color: #e7e7e7;
+}
+
+.model-table {
+    border: 1px solid #eeeaea;
+}
+
+.model-table a {
+    color: #000;
 }
 
 .model-row th {
@@ -25,4 +34,9 @@ tr {
 
 .table-wrapper {
     padding: 0px 30px;
+}
+
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
 }

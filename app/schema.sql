@@ -104,7 +104,19 @@ DECLARE _customer_id int;
     END;
 $$;
 
-CREATE OR REPLACE FUNCTION get_all_users()
+CREATE OR REPLACE VIEW v_all_users AS
+	SELECT user_id,
+		first_name,
+		last_name,
+		email,
+		phone,
+		birth_date,
+		entered_date,
+		is_admin
+	FROM users LEFT JOIN customers 
+	  USING (customer_id);
+
+CREATE OR REPLACE FUNCTION get_paginated_users(_limit int, _offset int)
 RETURNS TABLE (
     user_id int,
     first_name varchar(60),
@@ -115,16 +127,16 @@ RETURNS TABLE (
     entered_date date,
     is_admin boolean
 ) AS $$
-    SELECT user_id,
-           first_name,
-           last_name,
-           email,
-           phone,
-           birth_date,
-           entered_date,
-           is_admin
-    FROM users
-      LEFT JOIN customers USING (customer_id);
+    SELECT user_id, 
+		   first_name, last_name,
+           email, phone,
+           birth_date, entered_date, 
+		   is_admin
+    FROM users LEFT JOIN 
+	  customers USING (customer_id)
+	ORDER BY user_id
+	LIMIT _limit
+	OFFSET _offset
 $$ LANGUAGE SQL;
 
 -- triggers

@@ -1,5 +1,5 @@
 from flask import current_app
-from typing import List
+from typing import List, Tuple
 from psycopg2.extras import RealDictCursor, DictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import get_db
@@ -75,6 +75,14 @@ class Product:
         cursor.execute(query, **data)
 
 class User:
+    per_page = 10
+
+    @staticmethod
+    def execute_query(query: str, *params):
+        cursor = get_db().cursor(cursor_factory=DictCursor)
+        cursor.execute(query, params)
+        return cursor.fetchall()
+
     @staticmethod
     def get_by_email(email: str) -> RealDictCursor:
         cursor = get_db().cursor(cursor_factory=RealDictCursor)
@@ -96,9 +104,22 @@ class User:
     @staticmethod
     def get_all_users() -> DictCursor:
         cursor = get_db().cursor(cursor_factory=DictCursor)
-        query = 'SELECT * FROM get_all_users()'
+        query = 'SELECT * FROM v_all_users'
         cursor.execute(query)
         return cursor.fetchall()
+    
+    @staticmethod
+    def get_paginated_users(page: int) -> Tuple[int, DictCursor]:
+        cursor = get_db().cursor(cursor_factory=DictCursor)
+        offset = (page - 1) * User.per_page
+        query = 'SELECT * FROM get_paginated_users(%s, %s)'
+
+        cursor.execute(query, (User.per_page, offset))
+        query_set = cursor.fetchall()
+        cursor.execute('SELECT count(*) FROM users')
+        total_count = cursor.fetchone()[0]
+
+        return (total_count, query_set)
 
 
         

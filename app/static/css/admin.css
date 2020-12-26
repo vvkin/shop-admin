@@ -55,6 +55,10 @@ tr {
     text-transform: uppercase;
 }
 
+div.product-add {
+    padding: 10px 50px 0 50px;
+}
+
 .product-add h1 {
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -71,5 +75,14 @@ tr {
 
 .buttons input {
     margin: 0 15px;
+}
+
+.images-slider {
+    display: flex;
+    justify-content: center;
+}
+
+.images-slider img {
+    height: 405px;
 }
 

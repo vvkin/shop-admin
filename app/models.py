@@ -27,10 +27,9 @@ class PgAPI:
     
     @staticmethod
     def execute_call(query: str, *args):
-        print(args)
         cursor = get_db().cursor()
         cursor.execute(query, args)
-
+    
 class Supplier:
     @staticmethod
     def get_all_choices() -> List[Tuple[int, str]]:
@@ -47,11 +46,29 @@ class Category:
 
 class Product:
     @staticmethod
+    def get_all() -> DictCursor:
+        query = 'SELECT * FROM v_products_all'
+        products = PgAPI.execute_dict_query(query)
+        return products
+
+    @staticmethod
     def get_by_sku(sku: str) -> DictCursor:
         query = 'SELECT * FROM products WHERE sku = %s'
         product = PgAPI.execute_query(query, (sku, ))
         return product[0] if product else None
     
+    @staticmethod
+    def get_by_name_like(name: str) -> DictCursor:
+        query = 'SELECT * FROM get_products_by_name(%s)'
+        products = PgAPI.execute_dict_query(query, name)
+        return products
+    
+    @staticmethod
+    def get_by_price_like(lower: float, higher: float) -> DictCursor:
+        query = 'SELECT * FROM get_products_by_price(%s, %s)'
+        products = PgAPI.execute_dict_query(query, lower, higher)
+        return products
+        
     @staticmethod
     def save_product(*product_data) -> None:
         query = """

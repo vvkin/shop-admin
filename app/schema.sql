@@ -91,6 +91,20 @@ CREATE OR REPLACE VIEW v_categories_names_all AS
 	SELECT category_id, category_name
 	FROM categories;
 
+CREATE OR REPLACE VIEW v_products_all AS 
+	SELECT product_id, 
+		   product_name,
+	       category_name, 
+		   company_name AS supplier_name,
+		   sku, 
+		   unit_price, 
+		   discount,
+		   units_in_stock, 
+		   rating
+	FROM products
+	  JOIN categories USING (category_id)
+	  JOIN suppliers USING (supplier_id);
+
 -- help functions
 CREATE OR REPLACE PROCEDURE create_user(
     _email varchar(255),
@@ -152,6 +166,20 @@ RETURNS TABLE (
 	ORDER BY user_id
 	LIMIT _limit
 	OFFSET _offset
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION get_products_by_price(numeric(15, 6), numeric(15, 6))
+RETURNS TABLE (LIKE v_products_all)
+AS $$
+	SELECT * FROM v_products_all -- view with all products
+	WHERE unit_price BETWEEN $1 AND $2;
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION get_products_by_name(varchar(40))
+RETURNS TABLE (LIKE v_products_all)
+AS $$
+	SELECT * FROM v_products_all
+	WHERE product_name LIKE concat($1, '%');
 $$ LANGUAGE SQL;
 
 -- triggers

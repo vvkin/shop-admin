@@ -29,8 +29,8 @@ def user_add():
 
 @admin.route('/products')
 @admin_required
-def products():
-    return 'products here'
+def product_list():
+    return render_template('admin/product_list.html')
 
 @admin.route('/products/add', methods=['GET', 'POST'])
 @admin_required
@@ -55,3 +55,22 @@ def product_add():
         else: return redirect(url_for('admin.product_add'))
     
     return render_template('admin/product_add.html', form=form)
+
+@admin.route('/_products/all')
+def product_all():
+    products = Product.get_all()
+    return products
+
+@admin.route('/_products/by_price')
+def products_by_price(data):
+    products = Product.get_by_price_like(
+        lower = data['lower'],
+        higher = data['higher']
+    )
+    return products
+
+@admin.route('/_products/by_name')
+def product_by_name(data):
+    products = Product.get_by_name_like(data['name'])
+    return products
+

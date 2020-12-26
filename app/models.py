@@ -5,90 +5,70 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from app.db import get_db
 
 
-class Product:
-
+class PgAPI:
     @staticmethod
-    def get_product(pk: int):
-        cursor = get_db().cursor(cursor_factory=RealDictCursor)
-        product_query = """
-            SELECT product_name,
-                   sku,
-                   p.description,
-                   p.unit_price,
-                   p.units_in_stock,
-                   p.rating,
-                   p.pictures_directory,
-                   c.category_name
-            FROM products p
-              JOIN categories c USING (category_id)
-            WHERE product_id = %s
-        """
-
-        properties_query = """
-            SELECT p.property_name, pp.property_value
-            FROM product_properties pp
-                JOIN properties p USING (property_id)
-            WHERE product_id = %s
-        """
-        
-        cursor.execute(product_query, (pk, ))
-        product = cursor.fetchone()
-        cursor.execute(properties_query, (pk, ))
-        properties = cursor.fetchall()
-
-        return {
-            'product': product,
-            'properties': properties
-        }
-    
-    @staticmethod
-    def get_all_products():
+    def execute_query(query: str, *args):
         cursor = get_db().cursor()
-        cursor.execute('SELECT * FROM products')
-        query_set = cursor.fetchall()
-        return query_set
-        
-    @staticmethod
-    def get_products_by_category(category_name: str):
-        cursor = get_db.cursor()
-        query = """
-            SELECT *
-            FROM products p
-            WHERE EXISTS (
-                SELECT 1
-                FROM categories c
-                WHERE c.category_id = p.category_id
-                  AND c.category_name = %s
-            )
-        """
-        cursor.execute(query, (category_name, ))
-        query_set = cursor.fetchall()
-        return query_set
+        cursor.execute(query, args)
+        return cursor.fetchall()
     
     @staticmethod
-    def set_product(data):
-        cursor = get_db.cursor()
-        query = """
-            INSERT INTO products
-        """
+    def execute_dict_query(query: str, *args):
+        cursor = get_db().cursor(cursor_factory=DictCursor)
+        cursor.execute(query, args)
+        return cursor.fetchall()
+    
+    @staticmethod
+    def execute_rdict_query(query: str, *args):
+        cursor = get_db().cursor(cursor_factory=RealDictCursor)
+        cursor.execute(query, args)
+        return cursor.fetchall()
+    
+    @staticmethod
+    def execute_call(query: str, *args):
+        print(args)
+        cursor = get_db().cursor()
+        cursor.execute(query, args)
 
-        cursor.execute(query, **data)
+class Supplier:
+    @staticmethod
+    def get_all_choices() -> List[Tuple[int, str]]:
+        query = 'SELECT * FROM v_suppliers_names_all'
+        suppliers = PgAPI.execute_query(query)
+        return [(el[0], el[1]) for el in suppliers]
+
+class Category:
+    @staticmethod
+    def get_all_choices() -> List[Tuple[int, str]]:
+        query = 'SELECT * FROM v_categories_names_all'
+        categories = PgAPI.execute_query(query)
+        return [(el[0], el[1]) for el in categories]
+
+class Product:
+    @staticmethod
+    def get_by_sku(sku: str) -> DictCursor:
+        query = 'SELECT * FROM products WHERE sku = %s'
+        product = PgAPI.execute_query(query, (sku, ))
+        return product[0] if product else None
+    
+    @staticmethod
+    def save_product(*product_data) -> None:
+        query = """
+            CALL create_product(
+                %s, %s, %s::varchar(40), %s::varchar(20), 
+                %s::numeric(15, 6), %s::real, %s, %s::text
+            );
+        """
+        PgAPI.execute_call(query, *product_data)
 
 class User:
     per_page = 10
 
     @staticmethod
-    def execute_query(query: str, *params):
-        cursor = get_db().cursor(cursor_factory=DictCursor)
-        cursor.execute(query, params)
-        return cursor.fetchall()
-
-    @staticmethod
     def get_by_email(email: str) -> RealDictCursor:
-        cursor = get_db().cursor(cursor_factory=RealDictCursor)
         query = 'SELECT * FROM users WHERE email = %s'
-        cursor.execute(query, (email, ))
-        return cursor.fetchone()
+        user = PgAPI.execute_rdict_query(query, email)
+        return user[0] if user else None
     
     @staticmethod
     def is_valid_login(email: str, password: str) -> bool:
@@ -97,30 +77,19 @@ class User:
 
     @staticmethod
     def save_user(*user_data: List[str]) -> None:
-        cursor = get_db().cursor()
         query = 'CALL create_user(%s, %s, %s, %s, %s)'
-        cursor.execute(query, user_data)
+        PgAPI.execute_call(query, *user_data)
     
     @staticmethod
-    def get_all_users() -> DictCursor:
-        cursor = get_db().cursor(cursor_factory=DictCursor)
+    def get_all_users():
         query = 'SELECT * FROM v_all_users'
-        cursor.execute(query)
-        return cursor.fetchall()
+        return PgAPI.execute_query(query)
     
     @staticmethod
     def get_paginated_users(page: int) -> Tuple[int, DictCursor]:
-        cursor = get_db().cursor(cursor_factory=DictCursor)
         offset = (page - 1) * User.per_page
         query = 'SELECT * FROM get_paginated_users(%s, %s)'
-
-        cursor.execute(query, (User.per_page, offset))
-        query_set = cursor.fetchall()
-        cursor.execute('SELECT count(*) FROM users')
-        total_count = cursor.fetchone()[0]
-
+        query_set = PgAPI.execute_dict_query(query, User.per_page, offset)
+        total_count = PgAPI.execute_query('SELECT count(*) FROM users')[0][0]
         return (total_count, query_set)
-
-
-        
 

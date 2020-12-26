@@ -1,0 +1,52 @@
+{% extends 'admin/_base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+<div class="container product-add">
+    <h1>Add new product</h1>
+    <div class="row">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="col-md-5">
+                images here
+                <div class="form-group">
+                    {{ wtf.form_field(form.images, class="form-control") }}
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="form-row">
+                    <div class="form-group col-md-8">
+                        {{ wtf.form_field(form.product_name) }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ wtf.form_field(form.sku)}}
+                    </div>
+                    <div class="form-group col-md-12">
+                        {{ wtf.form_field(form.description, rows=8) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ wtf.form_field(form.category_id) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ wtf.form_field(form.supplier_id) }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ wtf.form_field(form.unit_price) }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ wtf.form_field(form.discount) }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ wtf.form_field(form.units_in_stock) }}
+                    </div>
+                </div>
+            </div>
+            <div class="buttons form-group col-md-12">
+                {{ wtf.form_field(form.save)}}
+                {{ wtf.form_field(form.save_and_continue) }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

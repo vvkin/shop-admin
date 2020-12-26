@@ -32,6 +32,10 @@ tr {
     border-color: inherit;
 }
 
+.actions {
+    padding-left: 50px;
+}
+
 .table-wrapper {
     padding: 0px 30px;
 }
@@ -40,3 +44,32 @@ tr {
     display: flex;
     justify-content: center;
 }
+
+.module h2{
+    margin: 0;
+    padding: 8px;
+    font-size: 13px;
+    text-align: left;
+    background: #e7e7e7;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.product-add h1 {
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    padding-bottom: 15px;
+}
+
+.buttons {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.buttons input {
+    margin: 0 10px;
+}
+

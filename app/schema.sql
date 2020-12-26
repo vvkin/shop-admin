@@ -63,7 +63,6 @@ CREATE TABLE users (
 
 CREATE TABLE payments (
 		payment_id serial PRIMARY KEY,
-		by_cash boolean DEFAULT FALSE,
 		credit_card varchar(20),
 		is_paid boolean DEFAULT FALSE,
 		paid_at timestamp
@@ -82,6 +81,15 @@ CREATE TABLE order_details (
 		quantity int NOT NULL,
 		discount real DEFAULT 0
 );
+
+-- views
+CREATE OR REPLACE VIEW v_suppliers_names_all AS
+	SELECT supplier_id, company_name
+	FROM suppliers;
+
+CREATE OR REPLACE VIEW v_categories_names_all AS
+	SELECT category_id, category_name
+	FROM categories;
 
 -- help functions
 CREATE OR REPLACE PROCEDURE create_user(
@@ -104,17 +112,24 @@ DECLARE _customer_id int;
     END;
 $$;
 
-CREATE OR REPLACE VIEW v_all_users AS
-	SELECT user_id,
-		first_name,
-		last_name,
-		email,
-		phone,
-		birth_date,
-		entered_date,
-		is_admin
-	FROM users LEFT JOIN customers 
-	  USING (customer_id);
+CREATE OR REPLACE PROCEDURE create_product(
+	_supplier_id int,
+	_category_id int,
+	_product_name varchar(40),
+	_sku varchar(20),
+	_unit_price numeric(15, 6),
+	_discount real,
+	_units_in_stock int,
+	_description text
+)
+AS $$
+	INSERT INTO products (
+		supplier_id, category_id, product_name, 
+		sku, unit_price, discount, 
+		units_in_stock, description
+	)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_paginated_users(_limit int, _offset int)
 RETURNS TABLE (
@@ -151,6 +166,17 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER tg_set_entered_date BEFORE INSERT
     ON users FOR EACH ROW EXECUTE PROCEDURE set_entered_date();
 
+CREATE OR REPLACE FUNCTION set_pictures_directory()
+RETURNS trigger AS $$
+BEGIN
+	NEW.pictures_directory = concat('img/', NEW.product_id);
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_set_pictures_directory BEFORE INSERT
+	ON products FOR EACH ROW EXECUTE PROCEDURE set_pictures_directory();
+
 -- add admins
 INSERT INTO users (email, password, is_admin)
 VALUES ('admin@admin.admin', 'admin', TRUE),
@@ -168,9 +194,9 @@ CALL create_user('yevhentolochko@gmail.com', '+380000000006', 'Євген', 'Т�
 CALL create_user('danylobezruchko@gmail.com', '+380000000007', 'Данило', 'Безручко', 'danylo123');
 CALL create_user('anastasiabohdanets@gmail.com', '+380000000008', 'Анастасія', 'Богданець', 'anastasia123');
 CALL create_user('yuliakushnir@gmail.com', '+380000000009', 'Юлія', 'Кушнір', 'yulia123');
-CALL create_user('olenafedorovych@gmail.com', '+3800000000010', 'Олена', 'Федорович', 'olena123');
-CALL create_user('darialeskovets@gmail.com', '+3800000000011', 'Дарія', 'Лесковець', 'petro123');
-CALL create_user('angelinapakhniuk@gmail.com', '+3800000000012', 'Ангеліна', 'Пахнюк', 'angelina123');
+CALL create_user('olenafedorovych@gmail.com', '+380000000010', 'Олена', 'Федорович', 'olena123');
+CALL create_user('darialeskovets@gmail.com', '+380000000011', 'Дарія', 'Лесковець', 'petro123');
+CALL create_user('angelinapakhniuk@gmail.com', '+380000000012', 'Ангеліна', 'Пахнюк', 'angelina123');
 
 -- Fill tables
 INSERT INTO categories (category_name)

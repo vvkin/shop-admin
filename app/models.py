@@ -68,7 +68,11 @@ class Product:
         query = 'SELECT * FROM get_products_by_price(%s, %s)'
         products = PgAPI.execute_dict_query(query, lower, higher)
         return products
-        
+    
+    @staticmethod
+    def get_by_paginate(data) -> DictCursor:
+        pass
+
     @staticmethod
     def save_product(*product_data) -> None:
         query = """

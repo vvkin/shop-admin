@@ -69,7 +69,6 @@ div.product-add {
 }
 
 .buttons {
-    margin-top: 10px;
     text-align: right;
 }
 
@@ -77,12 +76,20 @@ div.product-add {
     margin: 0 15px;
 }
 
-.images-slider {
-    display: flex;
-    justify-content: center;
+#img-slider {
+    margin-bottom: 15px;
+    overflow: hidden;
 }
 
-.images-slider img {
-    height: 405px;
+
+.carousel-inner {
+    height: 435px;
+}
+
+
+.item img {
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0 auto;
 }
 

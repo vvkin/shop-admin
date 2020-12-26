@@ -8,9 +8,7 @@
         <form enctype="multipart/form-data" method="post">
             {{ form.hidden_tag() }}
             <div class="col-md-6">
-                <div class="images-slider">
-                   <img id="img-preview" src="{{ url_for('static', filename='img/upload.png') }}" alt="">
-                </div>
+                {% include 'admin/_carousel.html' %}
                 <div class="form-group">
                     {{ wtf.form_field(form.images, class="form-control", multiple="") }}
                 </div>
@@ -43,7 +41,7 @@
                     </div>
                 </div>
             </div>
-            <div class="buttons form-group col-md-12">
+            <div class="buttons form-group col-md-6">
                 {{ wtf.form_field(form.save)}}
                 {{ wtf.form_field(form.save_and_continue) }}
             </div>

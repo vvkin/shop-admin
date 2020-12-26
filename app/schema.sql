@@ -179,7 +179,7 @@ CREATE OR REPLACE FUNCTION get_products_by_name(varchar(40))
 RETURNS TABLE (LIKE v_products_all)
 AS $$
 	SELECT * FROM v_products_all
-	WHERE product_name LIKE concat($1, '%');
+	WHERE lower(product_name) LIKE concat(lower($1), '%');
 $$ LANGUAGE SQL;
 
 -- triggers

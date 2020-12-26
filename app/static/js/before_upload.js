@@ -1,15 +1,39 @@
-function readURL(input) {
-    if (input.files && input.files[0]) {
-      var reader = new FileReader();
-      
-      reader.onload = (e) => {
-        document.querySelector('#img-preview').setAttribute('src', e.target.result);
-      }
-      
-      reader.readAsDataURL(input.files[0]); // convert to base64 string
-    }
-}
+document.addEventListener('DOMContentLoaded', function() {
+  const preview = document.querySelector('.carousel-inner');
+  const imagesInput = document.querySelector('#images');
 
-document.querySelector('#images').onchange = function() {
-    readURL(this);
-};
+  imagesInput.addEventListener('change', function() {
+    if (this.files) {
+      refreshPreview()
+      for (let file of this.files) {
+        readAndPreview(file);
+      }
+    }
+  });
+
+  function refreshPreview() {
+    while (preview.lastElementChild) {
+      preview.removeChild(preview.lastElementChild);
+    }
+  }
+
+  function addSlideToPreview(image) {
+    const slideItem = document.createElement('div');
+    slideItem.classList.add('item');
+    slideItem.appendChild(image);
+    preview.appendChild(slideItem);
+    preview.children[0].classList.add('active');
+  }
+  
+  function readAndPreview(file) { 
+    const reader = new FileReader();
+    
+    reader.addEventListener('load', function() {
+      const image = new Image();
+      image.title = file.name;
+      image.src = this.result;
+      addSlideToPreview(image);
+    });
+    reader.readAsDataURL(file);
+  }
+});

@@ -5,12 +5,12 @@
 <div class="container product-add">
     <h1>Add new product</h1>
     <div class="row">
-        <form method="post">
+        <form enctype="multipart/form-data" method="post">
             {{ form.hidden_tag() }}
             <div class="col-md-5">
                 images here
                 <div class="form-group">
-                    {{ wtf.form_field(form.images, class="form-control") }}
+                    {{ wtf.form_field(form.images, class="form-control", multiple="") }}
                 </div>
             </div>
             <div class="col-md-7">

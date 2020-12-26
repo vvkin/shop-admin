@@ -1,7 +1,8 @@
+import os
 from flask import current_app
 from typing import List, Tuple
 from psycopg2.extras import RealDictCursor, DictCursor
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 from app.db import get_db
 
 
@@ -60,6 +61,18 @@ class Product:
             );
         """
         PgAPI.execute_call(query, *product_data)
+    
+    @staticmethod
+    def save_images(images, sku: str) -> None:
+        product = Product.get_by_sku(sku)
+        images_directory = product[-1] # img directory
+        app_path = current_app.root_path
+        dir_path = os.path.join(app_path, images_directory)
+        os.mkdir(dir_path)
+
+        for image in images:
+            file_name = secure_filename(image.filename)
+            image.save(os.path.join(dir_path, file_name))
 
 class User:
     per_page = 10

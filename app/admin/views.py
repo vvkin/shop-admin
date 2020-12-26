@@ -38,6 +38,7 @@ def product_add():
     form = ProductCreationForm()
     form.category_id.choices = Category.get_all_choices()
     form.supplier_id.choices = Supplier.get_all_choices()
+
     if form.validate_on_submit():
         Product.save_product(
             form.supplier_id.data,
@@ -48,7 +49,9 @@ def product_add():
             form.discount.data,
             form.units_in_stock.data,
             form.description.data
-        )
+        )    
+        Product.save_images(request.files.getlist('images'), form.sku.data)
         if form.save.data: return redirect(url_for('admin.panel'))
         else: return redirect(url_for('admin.product_add'))
+    
     return render_template('admin/product_add.html', form=form)

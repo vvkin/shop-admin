@@ -19,6 +19,7 @@ def close_db(e=None):
 def init_db():
     with current_app.open_resource('schema.sql', 'r') as fhand:
         get_db().cursor().execute(fhand.read())
+        os.mkdir(os.path.join(current_app.root_path, 'img'))
 
 def init_app(app):
     app.teardown_appcontext(close_db)

@@ -6,7 +6,11 @@ from wtforms.validators import DataRequired, Length
 from app.models import Product
 
 
-ALLOWED_EXTENSIONS = ['.png', '.jpg', '.gif']
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 class ProductForm(FlaskForm):
     product_name = StringField('Product name', validators=[DataRequired(), Length(1, 60)])

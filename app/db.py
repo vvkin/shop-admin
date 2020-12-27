@@ -19,7 +19,7 @@ def close_db(e=None):
 def init_db():
     with current_app.open_resource('schema.sql', 'r') as fhand:
         get_db().cursor().execute(fhand.read())
-        img_dir = os.path.join(current_app.root_path, 'img')
+        img_dir = os.path.join(current_app.root_path, 'products')
         if not os.path.exists(img_dir): 
             os.mkdir(img_dir)
 

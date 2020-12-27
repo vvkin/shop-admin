@@ -8,7 +8,7 @@ bootstrap = Bootstrap()
 def create_app(config_name: str) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config[config_name])
-    app.config['UPLOAD_FOLDER'] = app.root_path
+    app.config['UPLOAD_FOLDER'] = 'static'
     
     db.init_app(app)
     bootstrap.init_app(app)

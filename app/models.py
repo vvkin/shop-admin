@@ -48,7 +48,7 @@ class Category:
         return [(el[0], el[1]) for el in categories]
 
 class Product:
-    per_page = 6
+    per_page = 3
 
     @staticmethod
     def get_all() -> DictCursor:
@@ -75,13 +75,12 @@ class Product:
             [
                 'category_id', 'supplier_id', 'product_name',
                 'sku', 'description', 'unit_price', 
-                'discount', 'units_in_stock'
+                'discount', 'units_in_stock', 'pictures'
             ],
-            product[1:9]
+            product[1:9] + (product[-1], )
         )
         data = dict(pairs)
         response = json.dumps(data, ensure_ascii=False, default=str)
-        print(response)
         return response
     
     @staticmethod
@@ -155,20 +154,26 @@ class Product:
         PgAPI.execute_call(query, pk)
     
     @staticmethod
+    def rm_dir_content(directory: str) -> None:
+        for file in os.listdir(directory):
+            os.remove(os.path.join(directory, file))
+    
+    @staticmethod
     def save_images(images, sku: str) -> None:
+        if not images[0].filename: return
+
         product = Product.get_by_sku(sku)
         images_directory = product[-1] # img directory
         app_path = current_app.config['UPLOAD_FOLDER']
-        dir_path = os.path.join(app_path, images_directory)
+        dir_path = os.path.join(current_app.root_path, app_path, images_directory)
 
         if os.path.exists(dir_path):
-            shutil.rmtree(dir_path, ignore_errors=True)
+            Product.rm_dir_content(dir_path)
         else: os.mkdir(dir_path)
 
         for image in images:
             file_name = secure_filename(image.filename)
-            if file_name:
-                image.save(os.path.join(dir_path, file_name))
+            image.save(os.path.join(dir_path, file_name))
 
 class User:
     per_page = 10

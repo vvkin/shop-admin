@@ -1,9 +1,11 @@
-from flask import redirect, render_template, request, url_for
+import os
+from flask import redirect, render_template, request, url_for, current_app, jsonify, send_from_directory
 from flask_paginate import Pagination
 from app.admin import admin
 from app.admin.forms import ProductForm, ProductFilterForm
 from app.decorators import admin_required
 from app.models import User, Supplier, Category, Product
+
 
 @admin.route('/', methods=['GET', 'POST'])
 @admin_required
@@ -85,7 +87,7 @@ def product_update(pk):
             form.discount.data,
             form.units_in_stock.data,
             form.description.data
-        )    
+        )
         Product.save_images(request.files.getlist('images'), form.sku.data)
         if form.save.data: return redirect(url_for('admin.panel'))
         else: return redirect(url_for('admin.product_update', pk=pk))
@@ -103,4 +105,16 @@ def product_delete(pk):
 def product_get(pk):
     response = Product.get_json(pk)
     return response
+
+@admin.route('/products/images/_get/<int:pk>')
+def product_images(pk):
+    img_path = f'products/{pk}'
+    path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], img_path)
+    images = os.listdir(path) if os.path.exists(path) else []
+    encoded_images = [url_for('static', filename=os.path.join(img_path, img)) for img in images]
+    return jsonify(images=encoded_images)
+
+    
+
+
 

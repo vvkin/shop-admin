@@ -1,19 +1,38 @@
 document.addEventListener('DOMContentLoaded', async function() {
-    const url = 'http://' + document.domain + ':' + location.port + '/admin/products/_get/';
+    const baseUrl = 'http://' + document.domain + ':' + location.port + '/admin/products/';
+    const preview = document.querySelector('.carousel-inner');
     const primaryKey = document.querySelector('.product-add').dataset.pk;
-    const response = await fetch(url + primaryKey);
-    
-    if (response.ok) {
-        const form = document.querySelector('#product-form');
-        data = await response.json(); let targetElement;
+    const response = await fetch(baseUrl + '_get/' + primaryKey);
 
+    if (response.ok) {
+        let data = await response.json(); let targetElement;
+        
         for (let key of Object.keys(data)) {
             targetElement = document.querySelector(`#${key}`);
             targetElement.value = data[key];
         }
+
+        data = await (await fetch(baseUrl + 'images/_get/' + primaryKey)).json();
+        const images = data.images;
+        if (images) {
+            preview.removeChild(preview.children[0]);
+            for(img of images) {
+                addToCarousel(img);
+            }
+        }
     } else {
         console.log('something went wrong...');
     }   
+
+    function addToCarousel(src) {
+        const slideItem = document.createElement('div');
+        slideItem.classList.add('item');
+        const img = document.createElement('img');
+        img.src = src;
+        slideItem.appendChild(img);
+        preview.appendChild(slideItem);
+        preview.children[0].classList.add('active');
+    }
 });
 
 

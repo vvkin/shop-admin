@@ -49,6 +49,8 @@ class Category:
 
 class Product:
     per_page = 3
+    last_query = ''
+    last_option = ''
 
     @staticmethod
     def get_all() -> DictCursor:
@@ -114,10 +116,12 @@ class Product:
         search = q is not None
         page = request_args.get('page', type=int, default=1)
         value = data['value']
+        Product.last_option = value
 
         if not value: products = Product.get_all()
         else:
             query = data['query']
+            Product.last_query = query
             if value == 1:
                 products = Product.get_by_name_like(query)
             else: products = Product.get_by_category_like(query)

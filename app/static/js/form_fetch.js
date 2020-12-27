@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         data = await (await fetch(baseUrl + 'images/_get/' + primaryKey)).json();
         const images = data.images;
-        if (images) {
+        if (images.length > 0) {
             preview.removeChild(preview.children[0]);
             for(img of images) {
                 addToCarousel(img);

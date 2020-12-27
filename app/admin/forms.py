@@ -24,10 +24,6 @@ class ProductForm(FlaskForm):
     images = MultipleFileField('Add images')
     save = SubmitField('Save')
     save_and_continue = SubmitField('Save and add another')
-
-    def validate_sku(self, field):
-        if Product.get_by_sku(field.data.lower()):
-            raise ValidationError('SKU has to be unique.')
     
     def validate_discount(self, field):
         if field.data < 0 or field.data > 1:

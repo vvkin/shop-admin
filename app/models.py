@@ -77,9 +77,9 @@ class Product:
             [
                 'category_id', 'supplier_id', 'product_name',
                 'sku', 'description', 'unit_price', 
-                'discount', 'units_in_stock', 'pictures'
+                'discount', 'units_in_stock'
             ],
-            product[1:9] + (product[-1], )
+            product[1:9]
         )
         data = dict(pairs)
         response = json.dumps(data, ensure_ascii=False, default=str)

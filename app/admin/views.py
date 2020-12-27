@@ -34,19 +34,23 @@ def product_list():
     form = ProductFilterForm()
 
     if form.validate_on_submit():
-        if form.search.data or form.query.data:
+        if form.reset.data: return redirect(url_for('admin.product_list'))
+
+        elif form.search.data or form.query.data:
+
             data = {'value': form.filter_mode.data, 'query': form.query.data}
             pagination, products = Product.get_paginated_by(data, request.args)
             return render_template('admin/product_list.html', form=form,
                 products=products, pagination=pagination
             )
-        elif form.reset.data: return redirect(url_for('admin.product_list'))
-    elif request.args.get('page'): # just next page with the same data:
+
+    elif request.args.get('page'):
         data = {'value': Product.last_option, 'query': Product.last_query}
         pagination, products = Product.get_paginated_by(data, request.args)
         return render_template('admin/product_list.html', form=form,
                 products=products, pagination=pagination
-            )
+        )
+
     pagination, products = Product.get_paginated_by({'value': 0}, request.args)
     return render_template('admin/product_list.html', form=form, 
         products=products, pagination=pagination

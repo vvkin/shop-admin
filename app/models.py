@@ -115,8 +115,10 @@ class Product:
         q = request_args.get('q')
         search = q is not None
         page = request_args.get('page', type=int, default=1)
-        value = data['value']
+        value = int(data['value'])
         Product.last_option = value
+
+        print(value)
 
         if not value: products = Product.get_all()
         else:

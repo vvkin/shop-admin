@@ -2,10 +2,11 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block content %}
-<div class="product-add">
-    <h1>Add new product</h1>
+<div class="product-add" data-pk="{{ pk }}">
+    <h1>Update product</h1>
     {% include 'admin/_product_form.html' %}
 </div>
 <script src="{{ url_for('static', filename='js/before_upload.js') }}"></script>
+<script src="{{ url_for('static', filename='js/form_fetch.js') }}"></script>
 {% endblock %}
 

@@ -1,5 +1,6 @@
 import os
 import shutil
+import json
 from flask import current_app, jsonify
 from flask_paginate import Pagination
 from typing import List, Tuple
@@ -62,6 +63,28 @@ class Product:
         return product[0] if product else None
     
     @staticmethod
+    def get_by_pk(pk: int):
+        query = 'SELECT * FROM products WHERE product_id=%s'
+        product = PgAPI.execute_query(query, (pk, ))
+        return product[0] if product else None
+
+    @staticmethod
+    def get_json(pk: int):
+        product = Product.get_by_pk(pk)
+        pairs = zip(
+            [
+                'category_id', 'supplier_id', 'product_name',
+                'sku', 'description', 'unit_price', 
+                'discount', 'units_in_stock'
+            ],
+            product[1:9]
+        )
+        data = dict(pairs)
+        response = json.dumps(data, ensure_ascii=False, default=str)
+        print(response)
+        return response
+    
+    @staticmethod
     def get_by_name_like(name: str) -> DictCursor:
         query = 'SELECT * FROM get_products_by_name(%s)'
         products = PgAPI.execute_dict_query(query, name)
@@ -117,6 +140,16 @@ class Product:
         PgAPI.execute_call(query, *product_data)
     
     @staticmethod
+    def update_product(*product_data) -> None:
+        query = """
+            CALL update_product(
+                %s, %s, %s, %s::varchar(40), %s::varchar(20), 
+                %s::numeric(15, 6), %s::real, %s, %s::text
+            );
+        """
+        PgAPI.execute_call(query, *product_data)
+    
+    @staticmethod
     def delete(pk: int) -> None:
         query = 'DELETE FROM products WHERE product_id=%s'
         PgAPI.execute_call(query, pk)
@@ -134,7 +167,8 @@ class Product:
 
         for image in images:
             file_name = secure_filename(image.filename)
-            image.save(os.path.join(dir_path, file_name))
+            if file_name:
+                image.save(os.path.join(dir_path, file_name))
 
 class User:
     per_page = 10

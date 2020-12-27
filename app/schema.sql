@@ -145,6 +145,30 @@ AS $$
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE PROCEDURE update_product(
+	_product_id int,
+	_supplier_id int,
+	_category_id int,
+	_product_name varchar(40),
+	_sku varchar(20),
+	_unit_price numeric(15, 6),
+	_discount real,
+	_units_in_stock int,
+	_description text
+)
+AS $$
+	UPDATE products SET
+		supplier_id    = $2,
+		category_id    = $3,
+		product_name   = $4,
+		sku            = $5,
+		unit_price     = $6,
+		discount       = $7,
+		units_in_stock = $8,
+		description    = $9
+	WHERE product_id = _product_id;
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION get_paginated_users(_limit int, _offset int)
 RETURNS TABLE (
     user_id int,

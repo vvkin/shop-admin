@@ -1,10 +1,14 @@
+import os
 from flask_wtf import FlaskForm
 from wtforms import MultipleFileField, StringField, SelectField, TextAreaField \
     ,FloatField, SubmitField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Length
 from app.models import Product
 
-class ProductCreationForm(FlaskForm):
+
+ALLOWED_EXTENSIONS = ['.png', '.jpg', '.gif']
+
+class ProductForm(FlaskForm):
     product_name = StringField('Product name', validators=[DataRequired(), Length(1, 40)])
     category_id = SelectField('Category', coerce=int, validators=[DataRequired()])
     supplier_id = SelectField('Supplier', coerce=int, validators=[DataRequired()])
@@ -28,7 +32,14 @@ class ProductCreationForm(FlaskForm):
     def validate_unit_price(self, field):
         if field.data < 0:
             raise ValidationError('Price has to be positive.')
+    
+    def validate_images(self, field):
+        for img in field.data:
+            _, ext = os.path.splitext(img.filename)
+            if ext not in ALLOWED_EXTENSIONS:
+                raise ValidationError('Images only.')
 
+    
 class ProductFilterForm(FlaskForm):
     filter_mode = SelectField(
         'Filter by', choices= (

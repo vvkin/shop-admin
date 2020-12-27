@@ -18,7 +18,7 @@ CREATE TABLE products (
 		product_id serial PRIMARY KEY,
 		category_id int REFERENCES categories (category_id),
 		supplier_id int REFERENCES suppliers  (supplier_id),
-		product_name varchar(40) NOT NULL,
+		product_name varchar(60) NOT NULL,
 		sku varchar(20) UNIQUE NOT NULL,
 		description text,
 		unit_price numeric(15, 6) NOT NULL,
@@ -97,7 +97,12 @@ CREATE OR REPLACE VIEW v_products_all AS
 		   sku,
 		   description,
 		   category_name, 
-		   company_name AS supplier_name,
+		   concat(
+			   company_name, '(', 
+			   contact_name, ', ',
+			   phone, ', ',
+			   email, ')'
+		   ) AS supplier_name,
 		   unit_price, 
 		   discount,
 		   units_in_stock
@@ -236,13 +241,13 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER tg_set_pictures_directory BEFORE INSERT
 	ON products FOR EACH ROW EXECUTE PROCEDURE set_pictures_directory();
 
--- add admins
+-- fill admins
 INSERT INTO users (email, password, is_admin)
 VALUES ('admin@admin.admin', 'admin', TRUE),
        ('admin1@admin.admin', 'admin1', TRUE),
        ('admin2@admin.admin', 'admin2', TRUE);
 
--- add common users
+-- fill common users
 CALL create_user('petropetrov@gmail.com', '+380000000000', 'Петро', 'Петров', 'petro123');
 CALL create_user('vasilkravchina@gmail.com', '+380000000001', 'Василь', 'Кравчина', 'vasil123');
 CALL create_user('ivangaydamaka@gmail.com', '+380000000002', 'Іван', 'Гайдамака', 'ivan123');
@@ -257,55 +262,162 @@ CALL create_user('olenafedorovych@gmail.com', '+380000000010', 'Олена', 'Ф
 CALL create_user('darialeskovets@gmail.com', '+380000000011', 'Дарія', 'Лесковець', 'petro123');
 CALL create_user('angelinapakhniuk@gmail.com', '+380000000012', 'Ангеліна', 'Пахнюк', 'angelina123');
 
--- Fill tables
+-- fill categories
 INSERT INTO categories (category_name)
-	VALUES ('A'), ('B'), ('C')
+VALUES ('Гіпсокартон'),
+       ('Профіль для гіпсокартона'),
+       ('Будівельні суміші'),
+       ('Клеєві суміші'),
+       ('Утеплювач'),
+       ('Пиломатеріали'),
+       ('Будівельна хімія'),
+       ('Кладочні матеріали'),
+       ('Покрівельні матеріали'),
+       ('Лакофарбові матеріали'),
+       ('Фасадні матеріали'),
+       ('Кріплення'),
+       ('Металічні сітки'),
+       ('Двір і город'),
+       ('Електрика'),
+       ('Отоплення і водопровід'),
+       ('Вікна і двері'),
+       ('Лінолеум'),
+       ('Каналізація')
 ;
 
+-- fill suppliers
 INSERT INTO suppliers (
 	company_name, contact_name, phone,
-	email, address, website_url, is_building_contractor
+	email, address, 
+	website_url, is_building_contractor
 )
-VALUES ('A', 'A', 'A', 'A', 'A', 'A', FALSE),
-	   ('A', 'A', 'A', 'A', 'A', 'A', FALSE),
-	   ('A', 'A', 'A', 'A', 'A', 'A', FALSE)
-;
+VALUES 
+(
+	'УкрБуд', 'Богданець Іван Сергійович', '+380501234973',
+	'ukbud@bud.com', 'м. Київ, проспект Степана Бандери, 27',
+	'ukrbud.com.ua', FALSE
+),
+(
+	'УкрТон', 'Лозовий Олексій Семенович', '+380662340113',
+	'ukrton@gmail.com', 'м. Рівне, вул. Київська, 81',
+	'ukrton.com.ua', TRUE
+),
+(
+	'АртБудПостач', 'Шевченко Олена Олександрівна', '+380667869814',
+	'artbud@ukr.net', 'м. Київ, вул. Вадима Гетьмана, 13',
+	'artbugpostach.com.ua', FALSE
+),
+(
+	'БЕТЦЕМ-А', 'Сокіл Петро Геннадійович', '+380959647374',
+	'betcema@ukr.net', 'м. Чернігів, вул. Гайдамацька, 123',
+	'betcema.com', FALSE
+),
+(
+	'ЯПВ', 'Шрам Ілля Миколайович', '+380914519426',
+	'yapvbud@ukr.net', 'м. Київ, вул. Софіївська, 54',
+	'yapv.com', FALSE
+),
+(
+	'Kerezit', 'Герман Марта Альбертівна', '+380664823810',
+	'kerezitcomp@gmail.com', 'м. Луцьк, вул. Петра Маха, 65',
+	'kerezit.com', TRUE
+),
+(
+	'ISOOM', 'Ковальский Євген Михайлович', '+380664503798',
+	'isoom@ukr.net', 'м. Київ, вул. Володимирська, 171',
+	'isoom.com.ua', FALSE
+),
+(
+	'ОВБМУ', 'Кушнір Володимир Дмитрович', '+380665674651',
+	'unionmbm@gmail.com', 'м. Черкаси, вул. Незалежності, 34',
+	NULL, FALSE
+),
+(
+	'МеталХол', 'Близнюк Денис Аркадійович', '+380669341430',
+	'metalhol@ukr.net', 'м. Херсон, вул. Василя Стуса, 12',
+	'methlhol.com.ua', TRUE
+),
+(
+	'ЄвроПокрівля', 'Вронський Микола Євгенович', '+380957099745',
+	'eupokrivlya@gmail.com', 'м. Київ, вул. Велика Васильківська, 87',
+	'eupokrivlya.com.ua', FALSE
+),
+(
+	'ТехноЗахід', 'Смеречук Олексій Олексійович', '+380509873241',
+	'techwest@tu.kyiv.ua', 'м. Київ, проспект Визволителів, 78',
+	'techwest.com', TRUE
+);
 
 INSERT INTO products (
-	category_id, supplier_id, product_name, sku,
-	description, unit_price, discount,
-	units_in_stock, rating, pictures_directory
+	category_id, supplier_id, product_name, 
+	sku, unit_price, discount,
+	units_in_stock, rating, description
 )
-VALUES (1, 1, 'A', 'A', '...', 100, 0, 0, 1, 'a'),
-	   (1, 1, 'A', 'B', '...', 100, 0, 0, 1, 'a'),
-	   (1, 1, 'A', 'C', '...', 100, 0, 0, 1, 'a')
-;
-
-
-
-
-
---INSERT INTO categories (category_name)
---VALUES ('Гіпсокартон'),
---      ('Профіль для гіпсокартона'),
---      ('Будівельні суміші'),
---       ('Клеєві суміші'),
---       ('Утеплювач'),
---       ('Пиломатеріали'),
---       ('Будівельна хімія'),
---       ('Кладочні матеріали'),
---       ('Покрівельні матеріали'),
---       ('Лакофарбові матеріали'),
---       ('Фасадні матеріали'),
---       ('Кріплення'),
---       ('Металічні сітки'),
---       ('Двір і город'),
---       ('Електрика'),
---       ('Отоплення і водопровід'),
---       ('Вікна і двері'),
---       ('Лінолеум'),
---       ('Каналізація')
---;
-
-
-
+VALUES (
+	1, 1, 'Гіпсокартон вогнестійкий Knauf 12,5*2500*1200 мм', 
+	'URB06W-IN', 115.0, 0.0, 87, 4.7,
+	'Гіпсокартон вогнестійкий Knauf має високі пожежно-технічні характеристики. 
+	Використовується для монтажу в приміщеннях з підвищеними протипожежними нормами.'
+),
+(
+	1, 6, 'Гіпсокартон вологостійкий 1200х3000х12.5 мм',
+	'HGB78I-OP', 177.0, 0.0, 13, 4.8, 
+	'Вологостійкий гіпсокартон виробництва компанії Keresit, якість 
+	та надійність якого підтверджена часом. Застосовується для облаштування
+	легких міжкімнатних перегородок, підвісних стель, облицювання стін 
+	і вогнезахисту конструкцій в будівлях і приміщеннях за умов підвищеної
+	вологості.'
+);/*,
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+),
+(
+	1, 1, 'Гіпсокартон Саундлайн ГКЛА лист 2000х1200х12.5 мм', 
+	'URB06W-IN', 229.0, 0.0, 87, 4.5, ''
+);
+*/

@@ -1,5 +1,7 @@
 import os
-from flask import current_app
+import shutil
+from flask import current_app, jsonify
+from flask_paginate import Pagination
 from typing import List, Tuple
 from psycopg2.extras import RealDictCursor, DictCursor
 from werkzeug.utils import secure_filename
@@ -45,6 +47,8 @@ class Category:
         return [(el[0], el[1]) for el in categories]
 
 class Product:
+    per_page = 6
+
     @staticmethod
     def get_all() -> DictCursor:
         query = 'SELECT * FROM v_products_all'
@@ -64,14 +68,43 @@ class Product:
         return products
     
     @staticmethod
+    def get_by_category_like(category: str) -> DictCursor:
+        query = 'SELECT * FROM get_products_by_category(%s)'
+        products = PgAPI.execute_dict_query(query, category)
+        return products
+    
+    @staticmethod
     def get_by_price_like(lower: float, higher: float) -> DictCursor:
         query = 'SELECT * FROM get_products_by_price(%s, %s)'
         products = PgAPI.execute_dict_query(query, lower, higher)
         return products
     
     @staticmethod
-    def get_by_paginate(data) -> DictCursor:
-        pass
+    def paginate_queryset(query_set, page) -> Tuple[int, DictCursor]:
+        total = len(query_set)
+        offset = (page - 1) * Product.per_page
+        query_set = query_set[offset: offset + Product.per_page]
+        return total, query_set
+        
+    @staticmethod
+    def get_paginated_by(data, request_args):
+        q = request_args.get('q')
+        search = q is not None
+        page = request_args.get('page', type=int, default=1)
+        value = data['value']
+
+        if not value: products = Product.get_all()
+        else:
+            query = data['query']
+            if value == 1:
+                products = Product.get_by_name_like(query)
+            else: products = Product.get_by_category_like(query)
+
+        total, query_set = Product.paginate_queryset(products, page)
+        pagination = pagination = Pagination(page=page, total=total, search=search, 
+            css_framework='foundation', per_page=Product.per_page)
+        
+        return pagination, query_set
 
     @staticmethod
     def save_product(*product_data) -> None:
@@ -87,9 +120,12 @@ class Product:
     def save_images(images, sku: str) -> None:
         product = Product.get_by_sku(sku)
         images_directory = product[-1] # img directory
-        app_path = current_app.root_path
+        app_path = current_app.config['UPLOAD_FOLDER']
         dir_path = os.path.join(app_path, images_directory)
-        os.mkdir(dir_path)
+
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path, ignore_errors=True)
+        else: os.mkdir(dir_path)
 
         for image in images:
             file_name = secure_filename(image.filename)

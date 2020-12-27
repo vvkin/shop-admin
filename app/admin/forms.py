@@ -29,4 +29,20 @@ class ProductCreationForm(FlaskForm):
         if field.data < 0:
             raise ValidationError('Price has to be positive.')
 
+
+class ProductFilterForm(FlaskForm):
+    filter_mode = SelectField(
+        'Filter by', choices= (
+            (1, 'Name'),
+            (2, 'Category')
+        ), validators=[DataRequired()]
+    )
+    query = StringField('Query')
+    reset = SubmitField('Reset')
+    search = SubmitField('Search')
+
+    def validate_query(self, field):
+        if field and len(field.data) < 1 and self.search.data:
+            raise ValidationError('Query has to include at leats one symbol.')
+
     

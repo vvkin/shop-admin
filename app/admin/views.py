@@ -1,7 +1,7 @@
 from flask import redirect, render_template, request, url_for
 from flask_paginate import Pagination
 from app.admin import admin
-from app.admin.forms import ProductCreationForm
+from app.admin.forms import ProductCreationForm, ProductFilterForm
 from app.decorators import admin_required
 from app.models import User, Supplier, Category, Product
 
@@ -27,10 +27,22 @@ def users():
 def user_add():
     return 'user_add'
 
-@admin.route('/products')
+@admin.route('/products', methods=['GET', 'POST'])
 @admin_required
 def product_list():
-    return render_template('admin/product_list.html')
+    form = ProductFilterForm()
+    if form.validate_on_submit():
+        if form.search.data:
+            data = {'value': form.filter_mode.data, 'query': form.query.data}
+            pagination, products = Product.get_paginated_by(data, request.args)
+            return render_template('admin/product_list.html', form=form,
+                products=products, pagination=pagination
+            )
+        elif form.reset.data: return redirect(url_for('admin.product_list'))
+    pagination, products = Product.get_paginated_by({'value': 0}, request.args)
+    return render_template('admin/product_list.html', form=form, 
+        products=products, pagination=pagination
+    )
 
 @admin.route('/products/add', methods=['GET', 'POST'])
 @admin_required
@@ -55,6 +67,11 @@ def product_add():
         else: return redirect(url_for('admin.product_add'))
     
     return render_template('admin/product_add.html', form=form)
+
+@admin.route('/products/update/<int:pk>', methods=['GET', 'POST'])
+def product_update(pk):
+    pass
+
 
 @admin.route('/_products/all')
 def product_all():

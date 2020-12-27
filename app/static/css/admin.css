@@ -101,8 +101,26 @@ div.product-add {
     max-height: 100%;
     position: absolute;
     top: 0;  
-    bottom: 0;  
+    bottom: 0;
     left: 0;  
-    right: 0;  
+    right: 0;
     margin: auto;
+}
+
+.filter-form-wrapper {
+    margin: 0 45px 20px 45px;
+}
+
+#range-div {
+    display: none;
+}
+
+.reset {
+    text-align: right;
+}
+
+form .row {
+    border: 1px solid  #d3cdcd;
+    background-color: #fdfdfd;;
+    padding-top: 10px;
 }

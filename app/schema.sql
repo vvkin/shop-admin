@@ -94,13 +94,13 @@ CREATE OR REPLACE VIEW v_categories_names_all AS
 CREATE OR REPLACE VIEW v_products_all AS 
 	SELECT product_id, 
 		   product_name,
-	       category_name, 
+		   sku,
+		   description,
+		   category_name, 
 		   company_name AS supplier_name,
-		   sku, 
 		   unit_price, 
 		   discount,
-		   units_in_stock, 
-		   rating
+		   units_in_stock
 	FROM products
 	  JOIN categories USING (category_id)
 	  JOIN suppliers USING (supplier_id);
@@ -171,8 +171,15 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION get_products_by_price(numeric(15, 6), numeric(15, 6))
 RETURNS TABLE (LIKE v_products_all)
 AS $$
-	SELECT * FROM v_products_all -- view with all products
+	SELECT * FROM v_products_all
 	WHERE unit_price BETWEEN $1 AND $2;
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION get_products_by_category(varchar(40))
+RETURNS TABLE (LIKE v_products_all)
+AS $$
+	SELECT * FROM v_products_all
+	WHERE lower(category_name) LIKE concat(lower($1), '%');
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_products_by_name(varchar(40))

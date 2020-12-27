@@ -117,6 +117,11 @@ class Product:
         PgAPI.execute_call(query, *product_data)
     
     @staticmethod
+    def delete(pk: int) -> None:
+        query = 'DELETE FROM products WHERE product_id=%s'
+        PgAPI.execute_call(query, pk)
+    
+    @staticmethod
     def save_images(images, sku: str) -> None:
         product = Product.get_by_sku(sku)
         images_directory = product[-1] # img directory

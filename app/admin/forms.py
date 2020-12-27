@@ -29,7 +29,6 @@ class ProductCreationForm(FlaskForm):
         if field.data < 0:
             raise ValidationError('Price has to be positive.')
 
-
 class ProductFilterForm(FlaskForm):
     filter_mode = SelectField(
         'Filter by', choices= (

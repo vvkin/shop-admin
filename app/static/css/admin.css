@@ -124,3 +124,32 @@ form .row {
     background-color: #fdfdfd;;
     padding-top: 10px;
 }
+
+th.icons a {
+    color: black;
+}
+
+th.icons a:first-child {
+    margin-right: 15px;
+}
+
+th.icons {
+    text-align: center;
+}
+
+.button-group {
+    margin-top: 24px;
+}
+
+.button-group:last-child {
+    text-align: right;
+}
+
+.button-group a {
+    margin-left: 15px;
+}
+
+span.delete {
+    cursor: pointer;
+    color: black;
+}

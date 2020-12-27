@@ -68,26 +68,14 @@ def product_add():
     
     return render_template('admin/product_add.html', form=form)
 
-@admin.route('/products/update/<int:pk>', methods=['GET', 'POST'])
+@admin.route('/products/update/<int:pk>')
+@admin_required
 def product_update(pk):
-    pass
+    return 'update pk'
 
-
-@admin.route('/_products/all')
-def product_all():
-    products = Product.get_all()
-    return products
-
-@admin.route('/_products/by_price')
-def products_by_price(data):
-    products = Product.get_by_price_like(
-        lower = data['lower'],
-        higher = data['higher']
-    )
-    return products
-
-@admin.route('/_products/by_name')
-def product_by_name(data):
-    products = Product.get_by_name_like(data['name'])
-    return products
+@admin.route('/products/delete/<int:pk>')
+@admin_required
+def product_delete(pk):
+    Product.delete(pk)
+    return {'success': True}
 

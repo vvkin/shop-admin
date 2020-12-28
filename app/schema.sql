@@ -584,9 +584,10 @@ VALUES (1, 2, 10, 0.1),
 ;
 
 -- CREATE read only employee, who is able to use all tables but cannot to change database schema
-CREATE USER shop_manager WITH PASSWORD 'hard_to_guess_password';
-GRANT CONNECT ON DATABASE pyshop TO shop_manager;
+REVOKE CREATE ON SCHEMA public FROM public;
+CREATE ROLE shop_manager;
+GRANT SELECT, UPDATE, DELETE, INSERT, TRIGGER ON ALL TABLES IN
+  SCHEMA public TO shop_manager;
 
-REVOKE ALL PRIVILEGES ON SCHEMA public FROM shop_manager;
-GRANT USAGE ON SCHEMA public TO shop_manager;
-GRANT SELECT, INSERT, DELETE, UPDATE ON ALL TABLES IN SCHEMA public TO shop_manager;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO shop_manager;
+CREATE USER shop_manager_user WITH PASSWORD 'hard_to_guess' IN ROLE shop_manager;

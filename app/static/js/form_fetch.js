@@ -9,7 +9,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         for (let key of Object.keys(data)) {
             targetElement = document.querySelector(`#${key}`);
-            targetElement.value = data[key];
+            if (key == 'unit_price') {
+                targetElement.value = (+data[key]).toFixed(3);
+            } else {
+                targetElement.value = data[key];
+            }
         }
 
         data = await (await fetch(baseUrl + 'images/_get/' + primaryKey)).json();

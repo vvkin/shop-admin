@@ -1,7 +1,7 @@
 import os
 from flask_wtf import FlaskForm
 from wtforms import MultipleFileField, StringField, SelectField, TextAreaField \
-    ,FloatField, SubmitField, IntegerField, ValidationError
+    ,FloatField, DecimalField, SubmitField, IntegerField, ValidationError
 from wtforms.validators import DataRequired, Length
 from app.models import Product
 
@@ -17,7 +17,7 @@ class ProductForm(FlaskForm):
     category_id = SelectField('Category', coerce=int, validators=[DataRequired()])
     supplier_id = SelectField('Supplier', coerce=int, validators=[DataRequired()])
     sku = StringField('SKU', validators=[DataRequired(), Length(1, 20)])
-    unit_price = FloatField('Unit price', validators=[DataRequired()])
+    unit_price = DecimalField('Unit price', places=6, validators=[DataRequired()])
     discount = FloatField('Discount', default=0.0)
     units_in_stock = IntegerField('Units in stock')
     description = TextAreaField('Description')

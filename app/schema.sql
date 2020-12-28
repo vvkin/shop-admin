@@ -121,6 +121,7 @@ BEGIN
 		WHEN total_price > 15000 THEN 0.1
 		WHEN total_price > 8000 THEN 0.05
 		WHEN total_price > 4000 THEN 0.03
+		ELSE 0
 	END INTO order_discount;
 	
     UPDATE order_details
@@ -331,19 +332,18 @@ $$
 	WHERE order_id = _order_id;
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION get_product_properties(_product_id int)
-RETURNS TABLE (
-	product_name varchar(60),
-	property_name varchar(40),
-	property_value varchar(40)
-) AS $$
-	SELECT product_name,
-	       property_name,
-		   property_value
-	FROM products
-	  JOIN product_properties USING (product_id)
-	  JOIN properties USING (property_id)
-	WHERE product_id = _product_id
+CREATE OR REPLACE FUNCTION get_total_customer_costs(_customer_id int)
+RETURNS double precision AS
+$$
+	SELECT COALESCE(sum(od.quantity * p.unit_price * (1 - od.discount)), 0)
+	FROM order_details od
+	JOIN products p USING (product_id)
+	WHERE EXISTS (
+		SELECT 1
+		FROM orders o
+		WHERE o.customer_id = _customer_id
+		  AND o.order_id = od.order_id
+	);
 $$ LANGUAGE SQL;
 
 -- FILL TABLES

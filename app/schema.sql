@@ -82,6 +82,80 @@ CREATE TABLE order_details (
 		discount real DEFAULT 0
 );
 
+-- TRIGGERS
+CREATE OR REPLACE FUNCTION set_entered_date()
+RETURNS trigger AS $$
+BEGIN
+    NEW.entered_date := current_date;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_set_entered_date BEFORE INSERT
+    ON users FOR EACH ROW EXECUTE PROCEDURE set_entered_date();
+
+CREATE OR REPLACE FUNCTION set_pictures_directory()
+RETURNS trigger AS $$
+BEGIN
+	NEW.pictures_directory = concat('products/', NEW.product_id);
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_set_pictures_directory BEFORE INSERT
+	ON products FOR EACH ROW EXECUTE PROCEDURE set_pictures_directory();
+
+CREATE OR REPLACE FUNCTION set_order_discount()
+RETURNS trigger AS $$
+DECLARE 
+    total_price double precision;
+    order_discount double precision := 0;
+BEGIN
+    SELECT sum(od.quantity * p.unit_price * (1 - od.discount))
+    INTO total_price
+    FROM order_details od
+	  JOIN products p USING (product_id)
+    WHERE od.order_id = NEW.order_id;
+	
+	SELECT CASE
+		WHEN total_price > 15000 THEN 0.1
+		WHEN total_price > 8000 THEN 0.05
+		WHEN total_price > 4000 THEN 0.03
+	END INTO order_discount;
+	
+    UPDATE order_details
+    SET discount = order_discount
+    WHERE order_id = NEW.order_id;
+
+    NEW.discount = order_discount;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_set_order_discount BEFORE INSERT ON
+    order_details FOR EACH ROW EXECUTE PROCEDURE set_order_discount();
+
+-- trigger to archive deleted users
+CREATE TABLE users_archive(
+	LIKE users,
+	deletion_datetime timestamp with time zone,
+    deleted_by name
+);
+
+CREATE OR REPLACE FUNCTION archive_deleted_user()
+RETURNS trigger AS $$
+BEGIN
+	INSERT INTO users_archive
+	SELECT OLD.*,
+	       current_timestamp AS deletetion_datetime, 
+	       current_user AS deleted_by;
+    RETURN NULL;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_archive_deleted_user AFTER DELETE ON
+    users FOR EACH ROW EXECUTE PROCEDURE archive_deleted_user();
+
 -- VIEWS
 CREATE OR REPLACE VIEW v_suppliers_names_all AS
 	SELECT supplier_id, company_name
@@ -109,6 +183,19 @@ CREATE OR REPLACE VIEW v_products_all AS
 	FROM products
 	  JOIN categories USING (category_id)
 	  JOIN suppliers USING (supplier_id);
+
+CREATE OR REPLACE VIEW get_all_created_users AS
+	SELECT *
+	FROM users
+	UNION
+	SELECT user_id,
+		   customer_id,
+		   email,
+		   password,
+		   birth_date,
+		   entered_date,
+		   is_admin
+	FROM users_archive;
     
 -- FUNCTIONS AND PROCEDURES
 -- stored procedures
@@ -258,59 +345,6 @@ RETURNS TABLE (
 	  JOIN properties USING (property_id)
 	WHERE product_id = _product_id
 $$ LANGUAGE SQL;
-
--- TRIGGERS
-CREATE OR REPLACE FUNCTION set_entered_date()
-RETURNS trigger AS $$
-BEGIN
-    NEW.entered_date := current_date;
-    RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER tg_set_entered_date BEFORE INSERT
-    ON users FOR EACH ROW EXECUTE PROCEDURE set_entered_date();
-
-CREATE OR REPLACE FUNCTION set_pictures_directory()
-RETURNS trigger AS $$
-BEGIN
-	NEW.pictures_directory = concat('products/', NEW.product_id);
-	RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER tg_set_pictures_directory BEFORE INSERT
-	ON products FOR EACH ROW EXECUTE PROCEDURE set_pictures_directory();
-
-CREATE OR REPLACE FUNCTION set_order_discount()
-RETURNS trigger AS $$
-DECLARE 
-    total_price double precision;
-    order_discount double precision := 0;
-BEGIN
-    SELECT sum(od.quantity * p.unit_price * (1 - od.discount))
-    INTO total_price
-    FROM order_details od
-	  JOIN products p USING (product_id)
-    WHERE od.order_id = NEW.order_id;
-	
-	SELECT CASE
-		WHEN total_price > 15000 THEN 0.1
-		WHEN total_price > 8000 THEN 0.05
-		WHEN total_price > 4000 THEN 0.03
-	END INTO order_discount;
-	
-    UPDATE order_details
-    SET discount = order_discount
-    WHERE order_id = NEW.order_id;
-
-    NEW.discount = order_discount;
-    RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER tg_set_order_discount BEFORE INSERT ON
-    order_details FOR EACH ROW EXECUTE PROCEDURE set_order_discount();
 
 -- FILL TABLES
 INSERT INTO users (email, password, is_admin)
@@ -553,6 +587,6 @@ VALUES (1, 2, 10, 0.1),
 CREATE USER shop_manager WITH PASSWORD 'hard_to_guess_password';
 GRANT CONNECT ON DATABASE pyshop TO shop_manager;
 
-GRANT USAGE ON SCHEMA public TO shop_manager;
 REVOKE ALL PRIVILEGES ON SCHEMA public FROM shop_manager;
+GRANT USAGE ON SCHEMA public TO shop_manager;
 GRANT SELECT, INSERT, DELETE, UPDATE ON ALL TABLES IN SCHEMA public TO shop_manager;

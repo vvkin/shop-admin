@@ -48,7 +48,11 @@
                     <span class="delete glyphicon glyphicon-trash" data-pk="{{ product.product_id }}"></span>
                 </th>
                 {% for key in product.keys() %}
-                <th scope="row">{{ product[key] }}</th>
+                    {% if key == 'unit_price' %}
+                    <th scope="row">{{ product[key] | round(2) }}</th> 
+                    {% else %}
+                    <th scope="row">{{ product[key] }}</th>
+                    {% endif %}
                 {% endfor %}
                 </tr>
             {% endfor %}

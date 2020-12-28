@@ -109,8 +109,9 @@ CREATE OR REPLACE VIEW v_products_all AS
 	FROM products
 	  JOIN categories USING (category_id)
 	  JOIN suppliers USING (supplier_id);
-
+    
 -- FUNCTIONS AND PROCEDURES
+-- stored procedures
 CREATE OR REPLACE PROCEDURE create_user(
     _email varchar(255),
     _phone varchar(24),
@@ -174,6 +175,7 @@ AS $$
 	WHERE product_id = _product_id;
 $$ LANGUAGE SQL;
 
+-- table functions
 CREATE OR REPLACE FUNCTION get_paginated_users(_limit int, _offset int)
 RETURNS TABLE (
     user_id int,
@@ -197,6 +199,20 @@ RETURNS TABLE (
 	OFFSET _offset
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION get_product_properties(_product_id int)
+RETURNS TABLE (
+	product_name varchar(60),
+	property_name varchar(40),
+	property_value varchar(40)
+) AS $$
+	SELECT product_name,
+	       property_name,
+		   property_value
+	FROM products
+	  JOIN product_properties USING (product_id)
+	  JOIN properties USING (property_id)
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION get_products_by_price(numeric(15, 6), numeric(15, 6))
 RETURNS TABLE (LIKE v_products_all)
 AS $$
@@ -216,6 +232,31 @@ RETURNS TABLE (LIKE v_products_all)
 AS $$
 	SELECT * FROM v_products_all
 	WHERE lower(product_name) LIKE concat(lower($1), '%');
+$$ LANGUAGE SQL;
+
+-- scalar functions
+CREATE OR REPLACE FUNCTION get_total_order_price(_order_id int)
+RETURNS double precision AS
+$$
+	SELECT od.quantity * p.unit_price * (1 - od.discount)
+	FROM order_details od
+	JOIN products p USING (product_id)
+	WHERE order_id = _order_id;
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION get_product_properties(_product_id int)
+RETURNS TABLE (
+	product_name varchar(60),
+	property_name varchar(40),
+	property_value varchar(40)
+) AS $$
+	SELECT product_name,
+	       property_name,
+		   property_value
+	FROM products
+	  JOIN product_properties USING (product_id)
+	  JOIN properties USING (property_id)
+	WHERE product_id = _product_id
 $$ LANGUAGE SQL;
 
 -- TRIGGERS
@@ -241,9 +282,39 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER tg_set_pictures_directory BEFORE INSERT
 	ON products FOR EACH ROW EXECUTE PROCEDURE set_pictures_directory();
 
+CREATE OR REPLACE FUNCTION set_order_discount()
+RETURNS trigger AS $$
+DECLARE 
+    total_price double precision;
+    order_discount double precision := 0;
+BEGIN
+    SELECT sum(od.quantity * p.unit_price * (1 - od.discount))
+    INTO total_price
+    FROM order_details od
+	  JOIN products p USING (product_id)
+    WHERE od.order_id = NEW.order_id;
+	
+	SELECT CASE
+		WHEN total_price > 15000 THEN 0.1
+		WHEN total_price > 8000 THEN 0.05
+		WHEN total_price > 4000 THEN 0.03
+	END INTO order_discount;
+	
+    UPDATE order_details
+    SET discount = order_discount
+    WHERE order_id = NEW.order_id;
+
+    NEW.discount = order_discount;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tg_set_order_discount BEFORE INSERT ON
+    order_details FOR EACH ROW EXECUTE PROCEDURE set_order_discount();
+
 -- FILL TABLES
 INSERT INTO users (email, password, is_admin)
-VALUES ('admin@admin.admin', 'admin', TRUE),
+VALUES ('admin@admin.admin', '2562admin', TRUE),
        ('admin1@admin.admin', 'admin1', TRUE),
        ('admin2@admin.admin', 'admin2', TRUE);
 
@@ -393,7 +464,7 @@ VALUES (
 (
 	18, 11, 'Лінолеум IDEAL Ultra CRACKED2', 
 	'ORO09G-AL', 300.0, 0.0, 13, 4.9, 
-	'Це найтовстіший лінолеум, теплозберігальна здатність якого просто вражає. Товщина 4.3мм дає можливість укладати лінолеум на цементну стяжку, тоді як велика товщина дозволяє зберігає в 3 рази більше тепла, а також надає шумоізоляцію, яка є найкращою серед аналогів.Також товщина допомагає виправити дрібні нерівності підлоги, це можуть бути дрібні нерівності стяжки, нерівний старий паркет, дошки, плитка і т.д. Утеплювач виготовлений на поліестровій основі, що робить його стійким до вологи.'
+	'Це найтовстіший лінолеум, теплозберігальна здатність якого просто вражає. Товщина 4.3мм дає можливість укладати лінолеум на цементну стяжку, тоді як велика товщина дозволяє зберігати в 3 рази більше тепла, а також надає шумоізоляцію, яка є найкращою серед аналогів.Також товщина допомагає виправити дрібні нерівності підлоги, це можуть бути дрібні нерівності стяжки, нерівний старий паркет, дошки, плитка і т.д. Утеплювач виготовлений на поліестровій основі, що робить його стійким до вологи.'
 ),
 (
 	9, 10, 'Бітумна черепиця Бардолін TOP Сота коричнева 3 кв.м', 
@@ -420,7 +491,7 @@ VALUES ('Вага'),
 	   ('Матеріал'),
 	   ('Морозостійкість'),
 	   ('Основа'),
-	   ('Тип шпаклівки'),
+	   ('Тип шпатлівки'),
 	   ('Область застосування'),
 	   ('Висота')
 ;
@@ -477,3 +548,11 @@ VALUES (1, 2, 10, 0.1),
 	   (9, 1, 7, 0.0),
 	   (10, 10, 43, 0.0)
 ;
+
+-- CREATE read only employee, who is able to use all tables but cannot to change database schema
+CREATE USER shop_manager WITH PASSWORD 'hard_to_guess_password';
+GRANT CONNECT ON DATABASE pyshop TO shop_manager;
+
+GRANT USAGE ON SCHEMA public TO shop_manager;
+REVOKE ALL PRIVILEGES ON SCHEMA public FROM shop_manager;
+GRANT SELECT, INSERT, DELETE, UPDATE ON ALL TABLES IN SCHEMA public TO shop_manager;

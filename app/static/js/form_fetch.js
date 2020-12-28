@@ -38,5 +38,3 @@ document.addEventListener('DOMContentLoaded', async function() {
         preview.children[0].classList.add('active');
     }
 });
-
-

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, ValidationError
-from wtforms.validators import DataRequired, Email, Regexp, EqualTo, Length
+from wtforms.validators import DataRequired, Email, Regexp, EqualTo, Length, Regexp
 from app.models import User
 import phonenumbers
 
@@ -15,7 +15,7 @@ class RegistrationForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired(), Length(1, 60)])
     second_name = StringField('Second Name', validators=[DataRequired(), Length(1, 60)])
     phone = StringField('Mobile Phone', validators=[DataRequired(), Length(1, 24)])
-    password = PasswordField('Password', validators=[Length(5),
+    password = PasswordField('Password', validators=[Length(8),
         DataRequired(), EqualTo('password2', message='Passwords must match.')])
     password2 = PasswordField('Confirm password', validators=[Length(5), DataRequired()])
     submit = SubmitField('Register')

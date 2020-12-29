@@ -10,8 +10,7 @@ CREATE TABLE suppliers (
 		phone varchar(24) NOT NULL,
 		email varchar(255) NOT NULL,
 		address varchar(60) NOT NULL,
-		website_url varchar(100),
-		is_building_contractor boolean DEFAULT FALSE
+		website_url varchar(100)
 );
 
 CREATE TABLE products (
@@ -48,16 +47,17 @@ CREATE TABLE customers (
 		customer_id serial PRIMARY KEY,
 		first_name varchar(60) NOT NULL,
 		last_name varchar(60) NOT NULL,
-		phone varchar(24)
+		phone varchar(24),
+		is_building_contractor boolean DEFAULT FALSE
 );
 
 CREATE TABLE users (
 		user_id serial PRIMARY KEY,
 		customer_id int REFERENCES customers (customer_id),
-		email varchar(255) NOT NULL,
+		email varchar(255) UNIQUE NOT NULL,
 		password varchar(128) NOT NULL,
 		birth_date date,
-		entered_date date, -- TO DO: add trigger for default now()
+		entered_date date,
 		is_admin boolean DEFAULT FALSE
 );
 
@@ -391,63 +391,63 @@ VALUES ('Гіпсокартон'),
 INSERT INTO suppliers (
 	company_name, contact_name, phone,
 	email, address, 
-	website_url, is_building_contractor
+	website_url
 )
 VALUES 
 (
 	'УкрБуд', 'Богданець Іван Сергійович', '+380501234973',
 	'ukbud@bud.com', 'м. Київ, проспект Степана Бандери, 27',
-	'ukrbud.com.ua', FALSE
+	'ukrbud.com.ua'
 ),
 (
 	'УкрТон', 'Лозовий Олексій Семенович', '+380662340113',
 	'ukrton@gmail.com', 'м. Рівне, вул. Київська, 81',
-	'ukrton.com.ua', TRUE
+	'ukrton.com.ua'
 ),
 (
 	'АртБудПостач', 'Шевченко Олена Олександрівна', '+380667869814',
 	'artbud@ukr.net', 'м. Київ, вул. Вадима Гетьмана, 13',
-	'artbugpostach.com.ua', FALSE
+	'artbugpostach.com.ua'
 ),
 (
 	'БЕТЦЕМ-А', 'Сокіл Петро Геннадійович', '+380959647374',
 	'betcema@ukr.net', 'м. Чернігів, вул. Гайдамацька, 123',
-	'betcema.com', FALSE
+	'betcema.com'
 ),
 (
 	'ЯПВ', 'Шрам Ілля Миколайович', '+380914519426',
 	'yapvbud@ukr.net', 'м. Київ, вул. Софіївська, 54',
-	'yapv.com', FALSE
+	'yapv.com'
 ),
 (
 	'Kerezit', 'Герман Марта Альбертівна', '+380664823810',
 	'kerezitcomp@gmail.com', 'м. Луцьк, вул. Петра Маха, 65',
-	'kerezit.com', TRUE
+	'kerezit.com'
 ),
 (
 	'ISOOM', 'Ковальский Євген Михайлович', '+380664503798',
 	'isoom@ukr.net', 'м. Київ, вул. Володимирська, 171',
-	'isoom.com.ua', FALSE
+	'isoom.com.ua'
 ),
 (
 	'ОВБМУ', 'Кушнір Володимир Дмитрович', '+380665674651',
 	'unionmbm@gmail.com', 'м. Черкаси, вул. Незалежності, 34',
-	NULL, FALSE
+	NULL
 ),
 (
 	'МеталХол', 'Близнюк Денис Аркадійович', '+380669341430',
 	'metalhol@ukr.net', 'м. Херсон, вул. Василя Стуса, 12',
-	'methlhol.com.ua', TRUE
+	'methlhol.com.ua'
 ),
 (
 	'ЄвроПокрівля', 'Вронський Микола Євгенович', '+380957099745',
 	'eupokrivlya@gmail.com', 'м. Київ, вул. Велика Васильківська, 87',
-	'eupokrivlya.com.ua', FALSE
+	'eupokrivlya.com.ua'
 ),
 (
 	'ТехноЗахід', 'Смеречук Олексій Олексійович', '+380509873241',
 	'techwest@tu.kyiv.ua', 'м. Київ, проспект Визволителів, 78',
-	'techwest.com', TRUE
+	'techwest.com'
 );
 
 INSERT INTO products (
@@ -584,6 +584,8 @@ VALUES (1, 2, 10, 0.1),
 ;
 
 -- CREATE read only employee, who is able to use all tables but cannot to change database schema
+
+
 REVOKE CREATE ON SCHEMA public FROM public;
 CREATE ROLE shop_manager;
 GRANT SELECT, UPDATE, DELETE, INSERT, TRIGGER ON ALL TABLES IN

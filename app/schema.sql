@@ -312,14 +312,14 @@ CREATE OR REPLACE FUNCTION get_products_by_category(varchar(40))
 RETURNS TABLE (LIKE v_products_all)
 AS $$
 	SELECT * FROM v_products_all
-	WHERE lower(category_name) LIKE concat(lower($1), '%');
+	WHERE category_name ILIKE concat($1, '%');
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION get_products_by_name(varchar(40))
 RETURNS TABLE (LIKE v_products_all)
 AS $$
 	SELECT * FROM v_products_all
-	WHERE lower(product_name) LIKE concat(lower($1), '%');
+	WHERE product_name ILIKE concat($1, '%');
 $$ LANGUAGE SQL;
 
 -- scalar functions

@@ -19,6 +19,7 @@ If you deal with it, do the following steps
 git clone https://github.com/vvkin/store-admin
 cd shop-admin
 docker-compose up -d --build
+docker-compose exec web flask init-db
 ```
 After that just visit **localhost:5000** to work with application.\
 If you run it not for the first time, exclude `--build`.
@@ -40,7 +41,8 @@ To get inside the container and use psql just type
 ```
 docker-compose exec db psql -U [database_owner]
 ```
-And after that execute the following query
+*By default database_owner is equal to postgres*\
+After that execute the following query
 ```SQL
 INSERT INTO users (email, password, is_admin)
 VALUES ('your email', 'your password', TRUE);

@@ -7,7 +7,7 @@ from flask.cli import with_appcontext
 
 def get_db():
     if 'db' not in g:
-        g.db = psycopg2.connect(current_app.config['DATABASE'])
+        g.db = psycopg2.connect(**current_app.config['DATABASE'])
         g.db.autocommit = True
     return g.db
 
@@ -18,7 +18,7 @@ def close_db(e=None):
 
 def init_db():
     with current_app.open_resource('schema.sql', 'r') as fhand:
-        connection = psycopg2.connect(current_app.config['INIT_DATABASE'])
+        connection = psycopg2.connect(**current_app.config['ADMIN_DATABASE'])
         connection.autocommit = True
         connection.cursor().execute(fhand.read())
         img_dir = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], 'products')

@@ -584,8 +584,6 @@ VALUES (1, 2, 10, 0.1),
 ;
 
 -- CREATE read only employee, who is able to use all tables but cannot to change database schema
-
-
 REVOKE CREATE ON SCHEMA public FROM public;
 CREATE ROLE shop_manager;
 GRANT SELECT, UPDATE, DELETE, INSERT, TRIGGER ON ALL TABLES IN

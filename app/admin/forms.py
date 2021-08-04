@@ -47,5 +47,3 @@ class ProductFilterForm(FlaskForm):
     def validate_query(self, field):
         if field and len(field.data) < 1 and self.search.data:
             raise ValidationError('Query has to include at leats one symbol.')
-
-    

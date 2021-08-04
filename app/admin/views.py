@@ -1,4 +1,5 @@
 import os
+
 from flask import redirect, render_template, request, url_for, current_app, jsonify, send_from_directory
 from flask_paginate import Pagination
 from app.admin import admin
@@ -12,7 +13,7 @@ from app.models import User, Supplier, Category, Product
 def panel():
     return render_template('admin/panel.html')
 
-@admin.route('/users')
+@admin.route('/users', methods=['GET'])
 @admin_required
 def users():
     q = request.args.get('q')
@@ -22,11 +23,6 @@ def users():
     pagination = Pagination(page=page, total=total, search=search, css_framework='foundation', 
         per_page=User.per_page)
     return render_template('admin/users.html', users=users, pagination=pagination)
-
-@admin.route('/users/add')
-@admin_required
-def user_add():
-    return 'user_add'
 
 @admin.route('/products', methods=['GET', 'POST'])
 @admin_required
@@ -105,22 +101,22 @@ def product_update(pk):
     
     return render_template('admin/product_update.html', form=form, pk=pk)
 
-@admin.route('/products/delete/<int:pk>')
+@admin.route('/products/<int:pk>', methods=['DELETE'])
 @admin_required
 def product_delete(pk):
     Product.delete(pk)
     return {'success': True}
 
-@admin.route('/products/_get/<int:pk>')
+@admin.route('/products/<int:pk>', methods=['GET'])
 @admin_required
 def product_get(pk):
     response = Product.get_json(pk)
     return response
 
-@admin.route('/products/images/_get/<int:pk>')
+@admin.route('/products/<int:pk>/images', methods=['GET'])
 def product_images(pk):
-    img_path = f'products/{pk}'
-    path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], img_path)
-    images = os.listdir(path) if os.path.exists(path) else []
-    encoded_images = [url_for('static', filename=os.path.join(img_path, img)) for img in images]
-    return jsonify(images=encoded_images)
+    img_dir = '/'.join(['products', str(pk)])
+    img_path = os.path.join(current_app.config['UPLOAD_PATH'], img_dir)
+    img_names = os.listdir(img_path) if os.path.exists(img_path) else []
+    images = [url_for('static', filename=os.path.join(img_dir, img)) for img in img_names]
+    return jsonify(images=images)

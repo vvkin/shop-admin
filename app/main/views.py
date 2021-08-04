@@ -16,9 +16,3 @@ def product_detail(pk: int):
 def product_list():
     products = Product.get_all_products()
     return render_template('product_list.html', products=products)
-
-@main.route('/_products/filter/')
-def product_filter(data):
-    pass
-    
-

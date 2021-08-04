@@ -1,3 +1,5 @@
+from os import path
+
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from config import config
@@ -8,7 +10,7 @@ bootstrap = Bootstrap()
 def create_app(config_name: str) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config[config_name])
-    app.config['UPLOAD_FOLDER'] = 'static'
+    app.config['UPLOAD_PATH'] = path.join(app.root_path, 'static')
     
     db.init_app(app)
     bootstrap.init_app(app)

@@ -169,9 +169,8 @@ class Product:
         if not images[0].filename: return
 
         product = Product.get_by_sku(sku)
-        images_directory = product[-1] # img directory
-        app_path = current_app.config['UPLOAD_FOLDER']
-        dir_path = os.path.join(current_app.root_path, app_path, images_directory)
+        img_dir = product[-1] 
+        dir_path = os.path.join(current_app.config['UPLOAD_PATH'], img_dir)
 
         if os.path.exists(dir_path):
             Product.rm_dir_content(dir_path)

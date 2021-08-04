@@ -13,7 +13,9 @@ for (const link of paginationLinks) {
 for (const control of deleteControls) {
   control.addEventListener('click', async () => {
     const primaryKey = control.dataset.pk;
-    const response = await fetch(`${baseUrl}/delete/${primaryKey}`);
+    const response = await fetch(`${baseUrl}/${primaryKey}`, {
+      method: 'DELETE',
+    });
     if (response.ok) control.closest('tr').remove();
   });
 }

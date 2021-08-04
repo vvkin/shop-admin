@@ -15,7 +15,7 @@ const addToCarousel = (src) => {
 };
 
 const fetchForm = async () => {
-  const response = await fetch(`${baseUrl}/_get/${primaryKey}`);
+  const response = await fetch(`${baseUrl}/${primaryKey}`);
   if (!response.ok) return;
 
   const data = await response.json();
@@ -27,7 +27,7 @@ const fetchForm = async () => {
 };
 
 const fetchImages = async () => {
-  const response = await fetch(`${baseUrl}/images/_get/${primaryKey}`);
+  const response = await fetch(`${baseUrl}/${primaryKey}/images`);
   if (!response.ok) return;
 
   const { images } = await response.json();
